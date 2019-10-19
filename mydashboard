@@ -134,6 +134,8 @@ use_token=True
 # Web browser
 WEB_BROWSER='/usr/bin/firefox'
 
+# Run gui when run the dashboard
+run_gui=True
 
 # -----------------------------------------------------------------
 # Informational functions.
@@ -290,7 +292,7 @@ Description=My dashboard MicroService
 
 [Service]
 Environment="DISPLAY=%s" "LANG=%s"
-ExecStart=%s -d -v --fg --nopid  %s
+ExecStart=%s -d -v --nogui  %s
 
 [Install]
 WantedBy=default.target
@@ -448,6 +450,7 @@ def main(args):
     global remotelist_conf
     global menu_conf
     global conf_file
+    global run_gui
     global document_root
     global debug_filename
     global ssl_default_ctx
@@ -493,10 +496,11 @@ def main(args):
         if 'token_filename' in conf:
             token_filename = conf['token_filename']
 
-        if 'gui' in conf and conf['gui'] == "True":
-            gui = True
-        else:
-            gui = False
+        if 'gui' in conf:
+            if conf['gui'] == "True":
+                run_gui = True
+            else:
+                run_gui = False
 
         if 'webbrowser' in conf:
             WEB_BROWSER = conf['webbrowser']
@@ -528,8 +532,8 @@ def main(args):
         WEB_BROWSER = args.webbrowser
     WEB_BROWSER = os.path.abspath(os.path.expanduser(WEB_BROWSER))
 
-    if args.gui:
-        gui = True
+    if args.nogui:
+        run_gui = False
 
     token_filename = os.path.abspath(os.path.expanduser(token_filename))
     use_token = not args.notoken
@@ -538,7 +542,7 @@ def main(args):
     # TODO: valider l'existence des scripts
 
     if debuging:
-        if gui:
+        if run_gui:
             log('Launch gui')
         log("debug file               : %s" % debug_filename)
         log("menu_conf                : %s" % menu_conf)
@@ -572,7 +576,7 @@ def main(args):
         httpd = server.make_server('', LISTENING_PORT, application)
         log("Serving HTTP on port %i..." % LISTENING_PORT)
         # Respond to requests until process is killed
-        if gui:
+        if run_gui:
             launch_gui ()
 
         httpd.serve_forever()
@@ -618,10 +622,10 @@ if __name__ == '__main__':
                         help='Debug mode.')
     parser.add_argument('--debugfilename', default=None,
                         help='Debug file name mode.')
-    parser.add_argument('--fg', action='store_true',
-                        help='Forground mode. Disable daemon mode.')
-    parser.add_argument('--nopid', action='store_true',
-                        help='Disable writing pid file (see --pidfile)')
+    parser.add_argument('--daemon', action='store_true',
+                        help='Enable daemon mode.')
+    parser.add_argument('--pid', action='store_true',
+                        help='Write pid file (see --pidfile)')
     parser.add_argument('--pidfile', default='/var/run/pyap.pid',
                         help='Set the pid file.')
     parser.add_argument('--documentroot', '-D', default=None,
@@ -634,7 +638,7 @@ if __name__ == '__main__':
                         help='Remote connection script')
     parser.add_argument('--notoken', action='store_true',
                         help='Unsafe mode without token.')
-    parser.add_argument('--gui', action='store_true',
+    parser.add_argument('--nogui', action='store_true',
                         help='Launch grahical user interface')
     parser.add_argument('--webbrowser', default=None,
             help='Select web browser (default: %s)' % WEB_BROWSER)
@@ -644,7 +648,7 @@ if __name__ == '__main__':
 
 
 
-    if not args.fg:
+    if args.daemon:
         # do the UNIX double-fork magic, see Stevens' "Advanced
         # Programming in the UNIX Environment" for details (ISBN 0201563177)
         if args.debug or args.verbose:
@@ -673,13 +677,13 @@ if __name__ == '__main__':
         # if os.fork() > 0:
         #     sys.exit(0)
 
-    if not args.nopid:
+    if args.pid:
         with open(args.pidfile, 'w') as f:
             f.write(str(os.getpid()))
 
     main(args)
 
-    if not args.nopid:
+    if args.pid:
         os.remove(args.pidfile)
 
     os._exit(os.EX_OK)

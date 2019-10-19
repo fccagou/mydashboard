@@ -3,20 +3,7 @@
 
 Run the microservice
 
-    python ./mydashboard -d -v --fg --nopid --notoken --conf data/conf.json
-
-Get help
-
-    curl http://localhost:8080/doc
-
-Run the web interface
-
-
-    curl http://localhost:8080/ui
-
-or
-
-    firefox http://localhost:8080/
+    python ./mydashboard -d -v --notoken --conf data/conf.json
 
 
 To make a user systemd servicea (still issue because of environment vars)
@@ -38,7 +25,7 @@ requests. This token is written in ~/.mydashboard file.
 
 So, the token way to run mydashbard is :
 
-    python ./mydashboard --fg --nopid --conf data/conf.json
+    python ./mydashboard --d -v --conf data/conf.json
 
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/doc
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/ui

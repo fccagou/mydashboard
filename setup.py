@@ -26,8 +26,6 @@ setup(name='mydashboard',
         author_email='me@fccagou.fr',
         license='GPLv3+',
         long_description="Userland Dashboard",
-        install_requires=[
-            ],
         scripts=[
             'mydashboard'
             ],
@@ -41,13 +39,20 @@ setup(name='mydashboard',
             ('share/doc/mydashboard/samples',[
                 'data/conf.json',
                 'data/rdp_connection.sh',
-            ]),
-            ('/etc/mydashboard', ['data/mydashboard.conf-default']),
-#            ('/usr/lib/systemd/system', ['data/pyap.service']),
-			('/etc/mydashboard/html', ['docroot/bootstrap.min.css']),
-			('/etc/mydashboard/html', ['docroot/all.css']),
-			('/etc/mydashboard/html', ['docroot/template.html']),
-			('/etc/mydashboard/html', ['docroot/jquery.min.js']),
-			('/etc/mydashboard/html', ['docroot/bootstrap.bundle.js']),
+                'data/remote.json',
+                ]),
+            ('/etc/mydashboard', [
+                'data/mydashboard.conf-default'
+                ]),
+            ('/etc/mydashboard/html', [
+                'docroot/bootstrap.min.css',
+                'docroot/all.css',
+                'docroot/template.html',
+                'docroot/jquery.min.js',
+                'docroot/bootstrap.bundle.js',
+                'docroot/mydashboard.js',
+                'docroot/mydashboard.css',
+                'docroot/computer.png',
+                ]),
             ],
-    )
+        )

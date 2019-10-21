@@ -21,7 +21,7 @@
 pkgbase=mydashboard
 # ivre-data must be the last one as it changes $pkgver
 pkgname=('mydashboard')
-pkgver=0.0.4
+pkgver=0.0.5
 pkgrel=1
 pkgdesc='Personal dashboard running as a microservice'
 arch=('any')

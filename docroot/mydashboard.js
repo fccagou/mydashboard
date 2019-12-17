@@ -51,8 +51,10 @@ function CreateNavBar( container_id ) {
 
     $.getJSON('/conf/menu', function ( data ) {
         var items = [];
+        var i=0;
         $.each( data, function ( title ) {
-            items.push('<li class="nav-item"><a class="nav-link" href="'+data[title]+'">'+title+'</a></li>');
+            items.push('<li class="nav-item"><a class="nav-link" href="'+data[title]+'" target="menu'+i+'">'+title+'</a></li>');
+            i++;
         });
 
         $(container_id).html(items.join(""));

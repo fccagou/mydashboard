@@ -19,7 +19,7 @@
 
 from distutils.core  import setup
 setup(name='mydashboard',
-        version='0.0.5',
+        version='0.0.6',
         description='Userland Dashboard microservice',
         url='http://github.com/fccagou/tools',
         author='fccagou',

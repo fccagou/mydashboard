@@ -48,3 +48,9 @@ body {
     border-color: #17a2b8;
 }
 
+
+.btn-nocolor {
+    color: #343a40;
+    background-color: #bbbbbb;
+    border-color: #343a40;
+}

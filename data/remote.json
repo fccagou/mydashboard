@@ -30,6 +30,10 @@
        ],
        "blanc" : [
           "TS-32"
+       ],
+       "nocolor" : [
+         "admin-srv01",
+         "admin-srv02"
        ]
     }
   },
@@ -54,6 +58,10 @@
        ],
        "blanc" : [
           "TS-32"
+       ],
+       "bleu" : [
+         "lagoon",
+         "iririki"
        ]
     }
   }

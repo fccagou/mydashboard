@@ -34,7 +34,6 @@ import mimetypes
 import subprocess
 import wsgiref.simple_server as server
 
-from threading import Thread
 
 
 # -----------------------------------------------------------------
@@ -54,6 +53,13 @@ def wsgi_to_bytes(str2convert):
     Because of https://www.python.org/dev/peps/pep-3333/#unicode-issues
     """
     return str2convert.encode('iso-8859-1')
+
+
+
+
+# -----------------------------------------------------------------
+# Manage Token
+# -----------------------------------------------------------------
 
 
 try:
@@ -88,10 +94,8 @@ except:
         return binascii.hexlify(token_bytes(nbytes)).decode('ascii')
 
 
-# -----------------------------------------------------------------
-# Manage Token
-# -----------------------------------------------------------------
-class Token():
+
+class Token:
     """Classe used to manage token file"""
     def __init__(self, value=False, filename='~/.mydashboard', size=16 ):
         self.size = size
@@ -137,86 +141,97 @@ class Token():
             return False
 
 
+
+
+
 # -----------------------------------------------------------------
-# Global Variables.
+# GLOBAL CONFIG
 # -----------------------------------------------------------------
-# Default web server listening port
-LISTENING_PORT = 8080
 
-# For debuging
-verbose = False
+class MyConfig:
+    def __init__(self):
 
-# Document Root for static web pages.
-document_root = '/etc/mydashboard/html'
+        # Default web server listening port
+        self.listening_port = 8080
 
-# ssl context for unverified site.
-ssl_default_ctx = None
+        # For debuging
+        self.verbose = False
 
-# Script used for rdp connection
-remote_connection_script = 'data/remote_connection.sh'
+        # Document Root for static web pages.
+        self.document_root = '/etc/mydashboard/html'
 
-# Default remote_list for demo
-remotelist_conf = 'data/remote.json'
+        # ssl context for unverified site.
+        self.ssl_default_ctx = None
 
-# Default menu for demo
-menu_conf = 'data/menu.json'
+        # Script used for rdp connection
+        self.remote_connection_script = 'data/remote_connection.sh'
 
-# debug flag
-debuging = False
+        # Default remote_list for demo
+        self.remotelist_conf = 'data/remote.json'
 
-# default debug file
-debug_filename = '~/mydash.log'
+        # Default menu for demo
+        self.menu_conf = 'data/menu.json'
 
-# COnfiguration file
-conf_file=None
+        # debug flag
+        self.debuging = False
 
-# Current token session
-#
-MYTOKEN=Token()
+        # default debug file
+        self.debug_filename = '~/mydash.log'
 
-# Safe mode if token is used
-use_token=True
+        # COnfiguration file
+        self.conf_file=None
 
-# Web browser
-WEB_BROWSER='/usr/bin/firefox'
+        # Current token session
+        self.token=Token()
 
-# Run gui when run the dashboard
-run_gui=True
+        # Safe mode if token is used
+        use_token=True
+
+        # Web browser
+        self.webbrowser='/usr/bin/firefox'
+
+        # Run gui when run the dashboard
+        self.run_gui=True
+
+
+
+config = MyConfig()
 
 # -----------------------------------------------------------------
 # Informational functions.
 # -----------------------------------------------------------------
+
 def log(msg):
-    global verbose
-    if verbose:
+    global config
+    if config.verbose:
         print("[+] - ", msg)
     else:
         pass
 
 def info(msg):
-    global verbose
-    if verbose:
+    global config
+    if config.verbose:
         print("[i] - ", msg)
     else:
         pass
 
 def warning(msg):
-    global verbose
-    if verbose:
+    global config
+    if config.verbose:
         print("[!] - ", msg)
     else:
         pass
 
 def error(msg):
-    global verbose
-    if verbose:
+    global config
+    if config.verbose:
         print("[-] - ", msg)
     else:
         pass
 
 def debug(msg):
-    global debuging
-    if debuging:
+    global config
+    if config.debuging:
         logging.debug(msg)
 
 
@@ -226,18 +241,21 @@ def debug(msg):
 # -----------------------------------------------------------------
 
 def page(start_response, output, ctype='text/plain', status="200 OK" ):
-    global ssl_default_ctx
-
+    """
+    Send output data using ctype and status.
+    This is the low level tool used by other functions.
+    """
     response_headers = [('Content-type', ctype),
                         ('Content-Length', str(len(output)))]
     start_response(status, response_headers)
     return [output]
 
 
-def static_page(start_response, filename, fullpath=False):
-    global ssl_default_ctx
-    global document_root
 
+def static_page(start_response, document_root, filename, fullpath=False):
+    """
+    Used to send data get from filename if presents in document_root path.
+    """
     status = "200 OK"
 
     try:
@@ -260,9 +278,11 @@ def static_page(start_response, filename, fullpath=False):
     return page(start_response, output, ctype=ctype, status=status)
 
 
-def jsonapi(start_response, data):
-    global ssl_default_ctx
 
+def jsonapi(start_response, data):
+    """
+    Send data in json format.
+    """
     status = "200 OK"
 
     try:
@@ -281,11 +301,11 @@ def jsonapi(start_response, data):
 
     return page(start_response, wsgi_to_bytes(output), ctype=ctype, status=status)
 
-def doc(start_response):
 
-    global LISTENING_PORT
-    global MYTOKEN
-
+def doc(start_response, config):
+    """
+    Send documentation.
+    """
     service_user_dir = os.path.expanduser('~/.config/systemd/user')
     service_name = os.path.sep.join((service_user_dir, 'mydashboard.service'))
 
@@ -307,16 +327,15 @@ Liste des actions possibles
       systemctl --user enable mydashboard
       systemctl --user start mydashboard
 
-""" % (service_user_dir, MYTOKEN.filename, LISTENING_PORT, service_name )
+""" % (service_user_dir, config.token.filename, config.listening_port, service_name )
     return page(start_response, wsgi_to_bytes(output), ctype='text/plain', status='200 OK')
 
 
 
-def systemd_service_display(start_response):
-
-    global conf_file
-    global document_root
-
+def systemd_service_display(start_response, document_root, conf_file):
+    """
+    Send systemd information to configure user systemd service.
+    """
     if conf_file is None:
         dash_option = "-D %s" % document_root
     else:
@@ -350,22 +369,25 @@ WantedBy=default.target
 
 
 
-def login_ok(start_response):
-    global MYTOKEN
-
+def login_ok(start_response, token):
+    """
+    Send redirect with token as cookie.
+    """
     status = '301 Moved Permanently'
     output = ''
     response_headers = [('Content-type', 'text/plain'),
                         ('Content-Length', str(len(output))),
                         ('Location', '/'),
-                        ('Set-Cookie', "MYTOKEN=%s" % MYTOKEN.get()),
+                        ('Set-Cookie', "MYTOKEN=%s" % token),
                         ]
     start_response(status, response_headers)
     return wsgi_to_bytes(output)
 
 
 def notfound(start_response, url):
-
+    """
+    Send not found page.
+    """
     status = '404 NOT FOUND'
     output = "%s not found\n" % url
     return page(start_response, wsgi_to_bytes(output), ctype='text/plain', status=status)
@@ -373,123 +395,132 @@ def notfound(start_response, url):
 
 
 def run_cmd(cmd_set):
-
+    """
+    Run local command in fork process.
+    Returns subprocess status and stdout/stderr.
+    Those informations are sent back to ui.
+    """
+    # Create pipe to communicate with fork child.
     r, w = os.pipe()
+    # Go fork.
     pid = os.fork()
     if pid != 0:
+        # ***** MAIN PROCESS *************
         log("CMD : %s\n" % (cmd_set))
         debug("CMD : %s\n" % (cmd_set))
+        # No need to write in the pipe.
         os.close(w)
+        # In main process, waiting child status and logs.
         data=""
-        with os.fdopen(r) as chid_input:
-            data = chid_input.readlines()
+        with os.fdopen(r) as child_input:
+            data = child_input.readlines()
             log("MSG FROM MY CHILD: \n%s" % "".join(data))
-
+        # Send back informations.
         return (data[0].strip(), "".join(data[1:]))
 
-    # Decouple from parent environment
+    # ***** CHILD PROCESS ****************
+    # Leave parent's session context.
     os.setsid()
+    # No need to read in the pipe.
     os.close(r)
 
     # Redirect the standard I/O file descriptors to father's pipe
+    # Useful to get error
     os.dup2(w, 0)  # standard input (0)
     os.dup2(w, 1)  # standard output (1)
     os.dup2(w, 2)  # standard error (2)
 
+    # Run commands.
     # PYTHON3 subprocess.run(("/usr/bin/gnome-terminal"), shell=True)
     p=subprocess.Popen(cmd_set, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     # TODO os.umask()
-
+    # waiting end of process and get status.
     status = p.wait()
-    w = os.fdopen(w, 'w')
+    # debug
     if status == 0:
         debug("SUCCESS\n%s\n%s\n" % (out, err))
     else:
         debug("ERR:\n%s\n%s\n" % (out, err))
 
+    # Send status to father and close pipe. If not closed,
+    # the father will wait forever !
+    w = os.fdopen(w, 'w')
     w.write("%d\n%s\n%s\n" % (status, out.decode('utf-8'), err.decode('utf-8')))
-
     w.close()
+    # Say Goodbye!
     os._exit(0)
-    # Juste for comment
 
 
-def launch_gui():
-    """Lauch the gui"""
-
-    global MYTOKEN
-    global use_token
-    global WEB_BROWSER
-    global LISTENING_PORT
-    if use_token:
-        status = run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN.get())])
+def launch_gui(config):
+    """Launch the gui"""
+    if config.use_token:
+        status = run_cmd(["%s http://localhost:%s/%s" % (config.webbrowser, config.listening_port,config.token.get())])
     else:
-        status = run_cmd(["%s http://localhost:%s" % (WEB_BROWSER, LISTENING_PORT)])
-
+        status = run_cmd(["%s http://localhost:%s" % (config.webbrowser, config.listening_port)])
     return status
+
 
 # -----------------------------------------------------------------
 # HTTP: WEB APP
 # -----------------------------------------------------------------
 def application(environ, start_response):
 
-    global MYTOKEN
-    global use_token
+    global config
 
-    if environ['PATH_INFO'][1:] == MYTOKEN.get():
-        return login_ok(start_response)
-
-    if use_token:
+    if config.use_token:
+        # First of all, try to find the token.
+        # In the path ...
+        if environ['PATH_INFO'][1:] == config.token.get():
+            return login_ok(start_response, config.token.get())
+        # ... or in cookies.
         try:
             cookies=environ['HTTP_COOKIE']
             log(cookies)
-            if not MYTOKEN.get() in cookies:
+            if not config.token.get() in cookies:
                 raise Exception('')
         except:
-            return page(start_response, output=wsgi_to_bytes("I'm a tea pots"),
+            # no token find ... I'm a teapot
+            return page(start_response, output=wsgi_to_bytes("I'm a teapot"),
                     status="418 I'm a teapot")
 
+    # Static files
     if environ['PATH_INFO'] in ['/bootstrap.min.css', '/jquery.min.js', '/bootstrap.bundle.js', '/computer.png', '/mydashboard.js', '/mydashboard.css' ]:
-        return static_page(start_response, environ['PATH_INFO'][1:])
+        return static_page(start_response, config.document_root, environ['PATH_INFO'][1:])
 
+    # Documentation
     if environ['PATH_INFO'] == "/doc":
-        return doc(start_response)
+        return doc(start_response, config)
 
+    # User interface
     if environ['PATH_INFO'] == "/ui":
-        launch_gui ()
-
-    elif environ['PATH_INFO'] == "/top":
-        run_cmd(["/usr/bin/top"])
+        launch_gui (config)
 
     elif environ['PATH_INFO'] == "/systemd/service":
-        return systemd_service_display(start_response)
+        return systemd_service_display(start_response, config.document_root, config.conf_file)
 
     elif environ['PATH_INFO'] == "/conf/menu":
-        global menu_conf
-        return static_page(start_response, menu_conf ,fullpath=True )
+        return static_page(start_response,config.document_root,  config.menu_conf ,fullpath=True )
 
     elif environ['PATH_INFO'] == "/remote/list":
-        global remotelist_conf
-        return static_page(start_response, remotelist_conf ,fullpath=True )
+        return static_page(start_response,config.document_root,  config.remotelist_conf ,fullpath=True )
 
     elif environ['PATH_INFO'][0:8] == "/remote/":
         (site,domain,group,remote_host) = environ['PATH_INFO'][8:].split('/')
-        global remote_connection_script
         exec_status = {}
-        exec_status['cmd'] = "%s %s %s %s %s nla" % (remote_connection_script, site, domain, group, remote_host)
+        exec_status['cmd'] = "%s %s %s %s %s nla" % (config.remote_connection_script, site, domain, group, remote_host)
         status = run_cmd(["%s %s %s %s %s nla "
-            % (remote_connection_script, site, domain, group, remote_host) ])
+            % (config.remote_connection_script, site, domain, group, remote_host) ])
         exec_status['status'] = status[0]
         exec_status['msg'] = status[1]
-        return jsonapi(start_response,exec_status) 
+        return jsonapi(start_response,exec_status)
 
     else:
         # TODO: passer un message d'erreur
         True
 
 
-    return static_page(start_response, 'template.html')
+    return static_page(start_response, config.document_root,'template.html')
 
 
 # -----------------------------------------------------------------
@@ -506,147 +537,136 @@ def end_process(signum, frame):
 
 
 
-def main(args):
-
-    global verbose
-    global debuging
-    global use_token
-    global remotelist_conf
-    global menu_conf
-    global conf_file
-    global run_gui
-    global document_root
-    global debug_filename
-    global ssl_default_ctx
-    global remote_connection_script
-    global LISTENING_PORT
-    global WEB_BROWSER
-    global MYTOKEN
-
-    verbose = args.verbose
-    debuging = args.debug
+def main(args, config):
+    """ Main function checking configuration and run http server.
+    """
+    config.verbose = args.verbose
+    config.debuging = args.debug
 
     # Catch signal to quit cleanly.
     signal.signal(signal.SIGTERM, end_process)
     signal.signal(signal.SIGQUIT, end_process)
 
-    if debuging:
+    if config.debuging:
         log("args list: %s " %  args)
 
     # Get configuration from file.
     if args.conf is not None:
-        conf_file = os.path.expanduser(args.conf)
-        log('Using config file %s' % conf_file)
-        conf = json.loads(open(conf_file, 'r').read())
+        config.conf_file = os.path.expanduser(args.conf)
+        log('Using config file %s' % config.conf_file)
+        conf = json.loads(open(config.conf_file, 'r').read())
 
         if 'documentroot' in conf:
-            document_root = conf['documentroot']
+            config.document_root = conf['documentroot']
 
         if 'ssl_allow_unverified' in conf and conf['ssl_allow_unverified'] == "True":
-            ssl_default_ctx = ssl._create_unverified_context()
+            config.ssl_default_ctx = ssl._create_unverified_context()
 
         if 'remote_connection' in conf:
-           remote_connection_script = conf['remote_connection']
+           config.remote_connection_script = conf['remote_connection']
 
         if 'remotelist' in conf:
-           remotelist_conf = conf['remotelist']
+           config.remotelist_conf = conf['remotelist']
 
         if 'menuconf' in conf:
-           menu_conf = conf['menuconf']
+           config.menu_conf = conf['menuconf']
 
-        if 'debug_filename' in conf:
-           debug_filename = conf['debug_filename']
+        if 'config.debug_filename' in conf:
+           config.debug_filename = conf['config.debug_filename']
 
         if 'token_filename' in conf:
-            MYTOKEN.filename = os.path.expanduser(conf['token_filename'])
+            config.token.filename = os.path.expanduser(conf['token_filename'])
 
         if 'gui' in conf:
             if conf['gui'] == "True":
-                run_gui = True
+                config.run_gui = True
             else:
-                run_gui = False
+                config.run_gui = False
 
         if 'webbrowser' in conf:
-            WEB_BROWSER = conf['webbrowser']
+            config.webbrowser = conf['webbrowser']
 
-
+    # Get parameters from command line.
     if args.documentroot:
-        document_root = args.documentroot
-    document_root = os.path.abspath(os.path.expanduser(document_root))
+        config.document_root = args.documentroot
+    config.document_root = os.path.abspath(os.path.expanduser(config.document_root))
 
     if args.remotecnx:
-        remote_connection_script = args.remotecnx
-    remote_connection_script = os.path.abspath(os.path.expanduser(remote_connection_script))
+        config.remote_connection_script = args.remotecnx
+    config.remote_connection_script = os.path.abspath(os.path.expanduser(config.remote_connection_script))
 
     if args.debugfilename:
-        debug_filename = args.debugfilename
-    debug_filename = os.path.abspath(os.path.expanduser(debug_filename))
-    logging.basicConfig(filename=debug_filename,level=logging.DEBUG)
+        config.debug_filename = args.debugfilename
+    config.debug_filename = os.path.abspath(os.path.expanduser(config.debug_filename))
+    logging.basicConfig(filename=config.debug_filename,level=logging.DEBUG)
 
 
     if args.remotelist:
-        remotelist_conf = args.remotelist
-    remotelist_conf = os.path.abspath(os.path.expanduser(remotelist_conf))
+        config.remotelist_conf = args.remotelist
+    config.remotelist_conf = os.path.abspath(os.path.expanduser(config.remotelist_conf))
 
     if args.menuconf:
-        menu_conf = args.menuconf
-    menu_conf = os.path.abspath(os.path.expanduser(menu_conf))
+        config.menu_conf = args.menuconf
+    config.menu_conf = os.path.abspath(os.path.expanduser(config.menu_conf))
 
     if args.webbrowser:
-        WEB_BROWSER = args.webbrowser
-    WEB_BROWSER = os.path.abspath(os.path.expanduser(WEB_BROWSER))
+        config.webbrowser = args.webbrowser
+    config.webbrowser = os.path.abspath(os.path.expanduser(config.webbrowser))
 
     if args.nogui:
-        run_gui = False
+        config.run_gui = False
 
-    use_token = not args.notoken
+    config.use_token = not args.notoken
 
     # TODO: valider l'existence des scripts
 
-    if debuging:
-        if run_gui:
+    if config.debuging:
+        if config.run_gui:
             log('Launch gui')
-        log("debug file               : %s" % debug_filename)
-        log("menu_conf                : %s" % menu_conf)
-        log("web browser              : %s" % WEB_BROWSER)
-        log("document_root            : %s" % document_root)
-        log("remotelist_conf          : %s" % remotelist_conf)
-        log("remote_connection_script : %s" % remote_connection_script)
+        log("debug file               : %s" % config.debug_filename)
+        log("menu_conf                : %s" % config.menu_conf)
+        log("web browser              : %s" % config.webbrowser)
+        log("document_root            : %s" % config.document_root)
+        log("remotelist_conf          : %s" % config.remotelist_conf)
+        log("remote_connection_script : %s" % config.remote_connection_script)
 
-    if not use_token:
+    if not config.use_token:
         warning('UNSAFE MODE')
 
-
-    stop_thread = False
     try:
-        LISTENING_PORT = args.port
+        config.listening_port = args.port
         try:
-            httpd = server.make_server('', LISTENING_PORT, application)
-            log("Serving HTTP on port %i..." % LISTENING_PORT)
+            # Run http service.
+            httpd = server.make_server('', config.listening_port, application)
+            log("Serving HTTP on port %i..." % config.listening_port)
             http_serve = True
 
-            if use_token:
-                MYTOKEN.new()
-                if not MYTOKEN.save():
+            if config.use_token:
+                config.token.new()
+                if not config.token.save():
                     end_process
 
         except OSError as oe:
             if oe.errno != errno.EADDRINUSE:
                 end_process
+            # The service is already running so get parameters
+            # to delegate action.
             http_serve = False
-            log("Server already listening on port %i..." % LISTENING_PORT)
-            log("Use TOKEN = %s" % use_token)
-            if use_token and not MYTOKEN.sync():
+            log("Server already listening on port %i..." % config.listening_port)
+            log("Use TOKEN = %s" % config.use_token)
+            if config.use_token and not config.token.sync():
                 os._exit(os.EX_OSFILE)
 
 
-        if debuging and use_token:
-            log("token_filename           : %s" % MYTOKEN.filename)
-            log("MYTOKEN                  : %s" % MYTOKEN.get())
+        if config.debuging and config.use_token:
+            log("token_filename           : %s" % config.token.filename)
+            log("token                    : %s" % config.token.get())
 
-        if run_gui:
-            launch_gui ()
+        # Open GUI.
+        if config.run_gui:
+            launch_gui (config)
 
+        # Process only if not already in use..
         if http_serve:
             httpd.serve_forever()
 
@@ -657,14 +677,14 @@ def main(args):
     except:
         print("Unexpected error:", sys.exc_info()[0])
     finally:
-        # Ending all process and switch notifiers off before leaving.
-        stop_thread = True
-
         log("Waiting end of process")
         time.sleep(2)
 
-if __name__ == '__main__':
 
+
+
+
+if __name__ == '__main__':
 
     # Process passed arguments.
     try:
@@ -684,10 +704,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--conf', '-c',
                         help='Configuration file.')
-    parser.add_argument('--port', '-p', default=LISTENING_PORT, type=int,
+    parser.add_argument('--port', '-p', default=config.listening_port, type=int,
                         help='Listening port for status push .')
     parser.add_argument('--verbose', '-v', action='store_true',
-                        help='Verbose.')
+                        help='verbose.')
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Debug mode.')
     parser.add_argument('--debugfilename', default=None,
@@ -711,11 +731,9 @@ if __name__ == '__main__':
     parser.add_argument('--nogui', action='store_true',
                         help='Launch grahical user interface')
     parser.add_argument('--webbrowser', default=None,
-            help='Select web browser (default: %s)' % WEB_BROWSER)
+            help='Select web browser (default: %s)' % config.webbrowser)
 
     args = parser.parse_args()
-
-
 
 
     if args.daemon:
@@ -747,12 +765,15 @@ if __name__ == '__main__':
         # if os.fork() > 0:
         #     sys.exit(0)
 
+    # Write pid file
     if args.pid:
         with open(args.pidfile, 'w') as f:
             f.write(str(os.getpid()))
 
-    main(args)
+    # Run main process.
+    main(args, config)
 
+    # Remove pid file at the end of process.
     if args.pid:
         os.remove(args.pidfile)
 

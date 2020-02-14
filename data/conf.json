@@ -3,7 +3,7 @@
   "remote_connection": "data/remote_connection.sh",
   "remotelist": "data/remote.json",
   "debug_filename": "data/mydash.log",
-  "gui": "False",
+  "gui": "True",
   "webbrowser": "/usr/bin/firefox"
 }
 

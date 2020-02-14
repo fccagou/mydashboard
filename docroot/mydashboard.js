@@ -1,11 +1,15 @@
 
 
-function api_exec( api ) {
+function api_exec( api , html_object) {
 
     var xhr = new XMLHttpRequest();
+    var prev_html = $(html_object).html();
+
+    $(html_object).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Connection...');
 
     xhr.addEventListener('readystatechange', function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
+            $(html_object).html(prev_html);
             if ( xhr.status === 200 ) {
                 // Code OK
                 var exec = JSON.parse(xhr.responseText);
@@ -36,6 +40,8 @@ function RemoteDisplay( container_id ) {
 
        var items = [];
 
+        var i=0;
+
         $.each( data , function (site) {
 
             items.push('<div class="col justify-content-center">');
@@ -55,7 +61,8 @@ function RemoteDisplay( container_id ) {
 
                         remote_host=remote_host_list[h]
                         var url = '/remote/' + site + '/' + domain + '/' + group + '/' + remote_host;
-                        items.push('<button onClick="api_exec(\'' + url +'\');" class="btn btn-' + group + '" role="button" data-toggle="tooltip" data-placement="top" title=" Connexion à '+domain+'">'+remote_host+'</span></button>');
+                        items.push('<button onClick="api_exec(\'' + url +'\', \'#button'+i+'\');" class="btn btn-' + group + '" role="button" data-toggle="tooltip" data-placement="top" title=" Connexion à '+domain+'" id="button'+i+'">'+remote_host+'</button>');
+                        i++;
 
                     }); // host_list
 

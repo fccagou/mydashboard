@@ -27,6 +27,7 @@ import sys
 import json
 import stat
 import time
+import errno
 import signal
 import logging
 import mimetypes
@@ -87,6 +88,54 @@ except:
         return binascii.hexlify(token_bytes(nbytes)).decode('ascii')
 
 
+# -----------------------------------------------------------------
+# Manage Token
+# -----------------------------------------------------------------
+class Token():
+    """Classe used to manage token file"""
+    def __init__(self, value=False, filename='~/.mydashboard', size=16 ):
+        self.size = size
+        if value:
+            self.value = value
+        else:
+            self.value = ''
+            self.new ()
+
+        self.filename = os.path.abspath(os.path.expanduser(filename))
+
+    def get(self):
+        return self.value
+
+    def new(self):
+        self.value = token_hex(self.size)
+        return self.value
+
+    def save(self):
+        try:
+            with open(self.filename, 'w') as f:
+                f.write(str(self.value))
+        except:
+            error("unable to write token in file %s" % self.filename)
+            return False
+
+        try:
+            os.chmod(self.filename, stat.S_IRUSR|stat.S_IWUSR)
+        except:
+            error("Unable to set rights 600 on file %s" % self.filename)
+            return False
+
+        return True
+
+    def sync(self):
+        try:
+            with open(self.filename, 'r') as f:
+                self.value = f.readlines()[0]
+            return True
+        except:
+            warning("unable to read token from file %s" % self.filename)
+            # TODO: make exception
+            return False
+
 
 # -----------------------------------------------------------------
 # Global Variables.
@@ -121,12 +170,9 @@ debug_filename = '~/mydash.log'
 # COnfiguration file
 conf_file=None
 
-# token file name
-token_filename = '~/.mydashboard'
-
-# Current tocken session
+# Current token session
 #
-MYTOKEN=token_hex(16)
+MYTOKEN=Token()
 
 # Safe mode if token is used
 use_token=True
@@ -172,6 +218,8 @@ def debug(msg):
     global debuging
     if debuging:
         logging.debug(msg)
+
+
 
 # -----------------------------------------------------------------
 # HTTP: default page showing all notifiers status.
@@ -236,7 +284,7 @@ def jsonapi(start_response, data):
 def doc(start_response):
 
     global LISTENING_PORT
-    global token_filename
+    global MYTOKEN
 
     service_user_dir = os.path.expanduser('~/.config/systemd/user')
     service_name = os.path.sep.join((service_user_dir, 'mydashboard.service'))
@@ -259,7 +307,7 @@ Liste des actions possibles
       systemctl --user enable mydashboard
       systemctl --user start mydashboard
 
-""" % (service_user_dir, token_filename, LISTENING_PORT, service_name )
+""" % (service_user_dir, MYTOKEN.filename, LISTENING_PORT, service_name )
     return page(start_response, wsgi_to_bytes(output), ctype='text/plain', status='200 OK')
 
 
@@ -310,7 +358,7 @@ def login_ok(start_response):
     response_headers = [('Content-type', 'text/plain'),
                         ('Content-Length', str(len(output))),
                         ('Location', '/'),
-                        ('Set-Cookie', "MYTOKEN=%s" % MYTOKEN),
+                        ('Set-Cookie', "MYTOKEN=%s" % MYTOKEN.get()),
                         ]
     start_response(status, response_headers)
     return wsgi_to_bytes(output)
@@ -332,6 +380,7 @@ def run_cmd(cmd_set):
     # TODO: return exec status 
     #subprocess.run(("/usr/bin/gnome-terminal -- %s" % cmd_set[0] ), shell=True)
     # PYTHON3 subprocess.run(("/usr/bin/gnome-terminal"), shell=True)
+    log("CMD : %s\n" % (cmd_set))
     debug("CMD : %s\n" % (cmd_set))
     p=subprocess.Popen(cmd_set, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
@@ -370,7 +419,7 @@ def launch_gui():
     global WEB_BROWSER
     global LISTENING_PORT
     if use_token:
-        run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN)])
+        run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN.get())])
     else:
         run_cmd(["%s http://localhost:%s" % (WEB_BROWSER, LISTENING_PORT)])
 
@@ -383,14 +432,14 @@ def application(environ, start_response):
     global MYTOKEN
     global use_token
 
-    if environ['PATH_INFO'][1:] == MYTOKEN:
+    if environ['PATH_INFO'][1:] == MYTOKEN.get():
         return login_ok(start_response)
 
     if use_token:
         try:
             cookies=environ['HTTP_COOKIE']
             log(cookies)
-            if not MYTOKEN in cookies:
+            if not MYTOKEN.get() in cookies:
                 raise Exception('')
         except:
             return page(start_response, output=wsgi_to_bytes("I'm a tea pots"),
@@ -462,10 +511,10 @@ def main(args):
     global document_root
     global debug_filename
     global ssl_default_ctx
-    global token_filename
     global remote_connection_script
     global LISTENING_PORT
     global WEB_BROWSER
+    global MYTOKEN
 
     verbose = args.verbose
     debuging = args.debug
@@ -502,7 +551,7 @@ def main(args):
            debug_filename = conf['debug_filename']
 
         if 'token_filename' in conf:
-            token_filename = conf['token_filename']
+            MYTOKEN.filename = os.path.expanduser(conf['token_filename'])
 
         if 'gui' in conf:
             if conf['gui'] == "True":
@@ -543,9 +592,7 @@ def main(args):
     if args.nogui:
         run_gui = False
 
-    token_filename = os.path.abspath(os.path.expanduser(token_filename))
     use_token = not args.notoken
-
 
     # TODO: valider l'existence des scripts
 
@@ -558,36 +605,44 @@ def main(args):
         log("document_root            : %s" % document_root)
         log("remotelist_conf          : %s" % remotelist_conf)
         log("remote_connection_script : %s" % remote_connection_script)
-        if use_token:
-            log("token_filename       : %s" % token_filename)
-            log("MYTOKEN              : %s" % MYTOKEN)
-
 
     if not use_token:
         warning('UNSAFE MODE')
-    else:
-        try:
-            with open(token_filename, 'w') as f:
-                f.write(str(MYTOKEN))
-        except:
-            error("unable to write token in file %s" % token_filename)
-            return
 
-        try:
-            os.chmod(token_filename, stat.S_IRUSR|stat.S_IWUSR)
-        except:
-            error("Unable to set rights 600 on file %s" % token_filename)
 
     stop_thread = False
     try:
         LISTENING_PORT = args.port
-        httpd = server.make_server('', LISTENING_PORT, application)
-        log("Serving HTTP on port %i..." % LISTENING_PORT)
-        # Respond to requests until process is killed
+        try:
+            httpd = server.make_server('', LISTENING_PORT, application)
+            log("Serving HTTP on port %i..." % LISTENING_PORT)
+            http_serve = True
+
+            if use_token:
+                MYTOKEN.new()
+                if not MYTOKEN.save():
+                    end_process
+
+        except OSError as oe:
+            if oe.errno != errno.EADDRINUSE:
+                end_process
+            http_serve = False
+            log("Server already listening on port %i..." % LISTENING_PORT)
+            log("Use TOKEN = %s" % use_token)
+            if use_token and not MYTOKEN.sync():
+                os._exit(os.EX_OSFILE)
+
+
+        if debuging and use_token:
+            log("token_filename           : %s" % MYTOKEN.filename)
+            log("MYTOKEN                  : %s" % MYTOKEN.get())
+
         if run_gui:
             launch_gui ()
 
-        httpd.serve_forever()
+        if http_serve:
+            httpd.serve_forever()
+
     except KeyboardInterrupt:
         log('End asked by user...bye bye !')
     except EndException as ee:

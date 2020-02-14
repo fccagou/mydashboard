@@ -373,42 +373,46 @@ def notfound(start_response, url):
 
 
 def run_cmd(cmd_set):
+
+    r, w = os.pipe()
     pid = os.fork()
     if pid != 0:
-        return 0
+        log("CMD : %s\n" % (cmd_set))
+        debug("CMD : %s\n" % (cmd_set))
+        os.close(w)
+        data=""
+        with os.fdopen(r) as chid_input:
+            data = chid_input.readlines()
+            log("MSG FROM MY CHILD: \n%s" % "".join(data))
 
-    # TODO: return exec status 
-    #subprocess.run(("/usr/bin/gnome-terminal -- %s" % cmd_set[0] ), shell=True)
-    # PYTHON3 subprocess.run(("/usr/bin/gnome-terminal"), shell=True)
-    log("CMD : %s\n" % (cmd_set))
-    debug("CMD : %s\n" % (cmd_set))
-    p=subprocess.Popen(cmd_set, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
+        return (data[0].strip(), "".join(data[1:]))
+
     # Decouple from parent environment
     os.setsid()
+    os.close(r)
+
+    # Redirect the standard I/O file descriptors to father's pipe
+    os.dup2(w, 0)  # standard input (0)
+    os.dup2(w, 1)  # standard output (1)
+    os.dup2(w, 2)  # standard error (2)
+
+    # PYTHON3 subprocess.run(("/usr/bin/gnome-terminal"), shell=True)
+    p=subprocess.Popen(cmd_set, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
     # TODO os.umask()
-    # Redirect the standard I/O file descriptors to /dev/null
-    if hasattr(os, "devnull"):
-         REDIRECT_TO = os.devnull
-    else:
-         REDIRECT_TO = "/dev/null"
 
-    fd = os.open(REDIRECT_TO, os.O_RDWR)
-    os.dup2(fd, 0)  # standard input (0)
-    os.dup2(fd, 1)  # standard output (1)
-    os.dup2(fd, 2)  # standard error (2)
-
-    # Ajouter cela dans un message sur l'interface.
-    # ret_msg = '---\n'.join([(out or ''), (err or '')])
     status = p.wait()
+    w = os.fdopen(w, 'w')
     if status == 0:
         debug("SUCCESS\n%s\n%s\n" % (out, err))
     else:
         debug("ERR:\n%s\n%s\n" % (out, err))
 
+    w.write("%d\n%s\n%s\n" % (status, out.decode('utf-8'), err.decode('utf-8')))
+
+    w.close()
     os._exit(0)
     # Juste for comment
-    return status
 
 
 def launch_gui():
@@ -419,10 +423,11 @@ def launch_gui():
     global WEB_BROWSER
     global LISTENING_PORT
     if use_token:
-        run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN.get())])
+        status = run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN.get())])
     else:
-        run_cmd(["%s http://localhost:%s" % (WEB_BROWSER, LISTENING_PORT)])
+        status = run_cmd(["%s http://localhost:%s" % (WEB_BROWSER, LISTENING_PORT)])
 
+    return status
 
 # -----------------------------------------------------------------
 # HTTP: WEB APP
@@ -473,8 +478,10 @@ def application(environ, start_response):
         global remote_connection_script
         exec_status = {}
         exec_status['cmd'] = "%s %s %s %s %s nla" % (remote_connection_script, site, domain, group, remote_host)
-        exec_status['status'] = run_cmd(["%s %s %s %s %s nla "
+        status = run_cmd(["%s %s %s %s %s nla "
             % (remote_connection_script, site, domain, group, remote_host) ])
+        exec_status['status'] = status[0]
+        exec_status['msg'] = status[1]
         return jsonapi(start_response,exec_status) 
 
     else:

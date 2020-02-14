@@ -14,8 +14,12 @@ function api_exec( api , html_object) {
                 // Code OK
                 var exec = JSON.parse(xhr.responseText);
                 if ( exec.status != "0" ) {
-                    $("#myModalTitle").text( api );
-                    $("#myModalBody").html( "<ul><li>Remote error: " + exec.status +"</li><li>" + exec.cmd + "</li></ul>");
+                    $("#myModalTitle").text( "Remote exec error (" + exec.status + ")" );
+                    $("#myModalBody").html(
+                        "<p>URL :" + api + "</p><hr>"
+                        + "<p>Command:<br/>" + exec.cmd + "</p><hr>"
+                        + "<p>Message:<br/>" + exec.msg.replace(/\n/g, '</br>') + "</p>"
+                        );
                     // $("#myModalCloseBtn").attr("class", "btn btn-success");
                     $("#myModal").modal();
                 }

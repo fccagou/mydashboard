@@ -372,7 +372,7 @@ def launch_gui():
     if use_token:
         run_cmd(["%s http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT,MYTOKEN)])
     else:
-        run_cmd(["% http://localhost:%s/%s" % (WEB_BROWSER, LISTENING_PORT)])
+        run_cmd(["%s http://localhost:%s" % (WEB_BROWSER, LISTENING_PORT)])
 
 
 # -----------------------------------------------------------------

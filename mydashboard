@@ -43,10 +43,12 @@ try:
     # For Python 3.0 and later
     from urllib.request import urlopen
     MYURLOPEN = lambda url, timeout, context: urlopen(url=url, timeout=timeout, context=context)
+    from urllib.parse import parse_qs
 except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import urlopen
     MYURLOPEN = lambda url, timeout, context: urlopen(url=url, timeout=timeout)
+    from urllib2.parse import parse_qs
 
 def wsgi_to_bytes(str2convert):
     """
@@ -331,6 +333,19 @@ Liste des actions possibles
     return page(start_response, wsgi_to_bytes(output), ctype='text/plain', status='200 OK')
 
 
+def service_status(start_response, config, environ):
+
+    output = """
+Environment
+===========
+
+%s
+""" % (
+        "\n".join('%s: %s' % (key, value) for key, value in sorted(environ.items()))
+        )
+    print(output)
+    return page(start_response, wsgi_to_bytes(output), ctype='text/plain', status='200 OK')
+
 
 def systemd_service_display(start_response, document_root, conf_file):
     """
@@ -394,30 +409,40 @@ def notfound(start_response, url):
 
 
 
-def run_cmd(cmd_set):
+def run_cmd(cmd_set, cmd_timeout=3):
     """
     Run local command in fork process.
     Returns subprocess status and stdout/stderr.
     Those informations are sent back to ui.
     """
     exit_code = 0
-    status = 200
+    status = 0
     pid = -1
+    msg = ''
+
+    p = None
 
     try:
-        p=subprocess.Popen(cmd_set, shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-
+        p=subprocess.Popen(cmd_set, shell=True, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         try:
-            p.wait(2)
+            status = p.wait(cmd_timeout)
+
         except subprocess.TimeoutExpired:
             # process still running, it's ok
             True
         pid = p.pid
 
     except subprocess.CalledProcessError:
+        msg='Do not know howto do this action'
         status = 503
 
-    return '{0}\npid: {1}}}'.format(status, pid)
+    if p is not None:
+       if status > 0:
+           child_out = str("".join( l.decode() for l in p.stdout.readlines()))
+           child_stderr = str("".join(l.decode() for l in p.stderr.readlines()))
+           msg="{0}\n{1}\n".format(child_out, child_stderr)
+
+    return [status, pid , msg]
 
 
 def launch_gui(config):
@@ -428,6 +453,29 @@ def launch_gui(config):
         status = run_cmd(["%s http://localhost:%s" % (config.webbrowser, config.listening_port)])
     return status
 
+
+def remote_connection(start_response, environ):
+
+    (site,domain,group,remote_host) = environ['PATH_INFO'][8:].split('/')
+    opts = parse_qs(environ['QUERY_STRING'])
+    if 'proto' in opts:
+        proto = opts['proto'][0]
+        if 'sec' in opts:
+            sec = opts['sec'][0]
+        else:
+            sec = 'nla'
+    else:
+        proto = ''
+        sec = ''
+
+    exec_status = {}
+    exec_status['cmd'] = "%s '%s' '%s' '%s' '%s' '%s' '%s'" % (config.remote_connection_script, site, domain, group, remote_host, proto, sec)
+    status = run_cmd(["%s '%s' '%s' '%s' '%s' '%s' '%s' "
+        % (config.remote_connection_script, site, domain, group, remote_host, proto, sec) ])
+    exec_status['status'] = status[0]
+    exec_status['pid'] = status[1]
+    exec_status['msg'] = status[2]
+    return jsonapi(start_response,exec_status)
 
 # -----------------------------------------------------------------
 # HTTP: WEB APP
@@ -460,6 +508,9 @@ def application(environ, start_response):
     if environ['PATH_INFO'] == "/doc":
         return doc(start_response, config)
 
+    if environ['PATH_INFO'] == '/status':
+        return service_status(start_response, config, environ)
+
     # User interface
     if environ['PATH_INFO'] == "/ui":
         launch_gui (config)
@@ -474,14 +525,7 @@ def application(environ, start_response):
         return static_page(start_response,config.document_root,  config.remotelist_conf ,fullpath=True )
 
     elif environ['PATH_INFO'][0:8] == "/remote/":
-        (site,domain,group,remote_host) = environ['PATH_INFO'][8:].split('/')
-        exec_status = {}
-        exec_status['cmd'] = "%s %s %s %s %s nla" % (config.remote_connection_script, site, domain, group, remote_host)
-        status = run_cmd(["%s %s %s %s %s nla "
-            % (config.remote_connection_script, site, domain, group, remote_host) ])
-        exec_status['status'] = status[0]
-        exec_status['msg'] = status[1]
-        return jsonapi(start_response,exec_status)
+        return remote_connection(start_response, environ)
 
     else:
         # TODO: passer un message d'erreur

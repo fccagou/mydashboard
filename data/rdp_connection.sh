@@ -60,15 +60,15 @@ Usage: ${PGM} [-h|--help] [--site site_name] [--group group_of_hosts]
 
      --site          : discribe the remote site to connect to (just informational)
      --group         : discribe the remote group of servers (just informational)
-     --sec           : rdp security type values are 
+     --sec           : rdp security type values are
                        - rdp : not safe
                        - tls : tls encryption
                        - nla : network security (default)
                        - ext : nla extended
-     --certificate   :  values are 
+     --certificate   :  values are
                        - ignore (very bad idea)
-                       - certificate filename 
-     --resolution    : diplay resolution. values are 
+                       - certificate filename
+     --resolution    : diplay resolution. values are
                        - full : fullscreen (default)
                        - WxH  : (W)idth  (H)eight in pixel
 					   - XX%  : for a percent of the current resolution (0<= XX < 99)
@@ -95,7 +95,7 @@ check_exploit () {
 	# TODO
 	# Check if the string contains exploit data
 	local STRING="${1}"
-	
+
 }
 
 check_user () {
@@ -108,12 +108,12 @@ check_domain () {
 	# TODO
 	# DOMAIN contains only alphanum and '.' characters
 	local DOMAIN="${1}"
-			
+
 }
 
 check_hostname () {
 	# TODO
-	local HOSTNAME="${1}"	
+	local HOSTNAME="${1}"
 }
 
 check_site (){
@@ -182,12 +182,12 @@ check_screen_size () {
 			W=${1/x*}
 			H=${1#*x}
 			[ $DEBUG ] && info "WxH ${W}x${H}\n"
-		
+
 			[ "$(is_num ${W})" == "1" -a "$(is_num ${H})" == "1" ] || {
 				error "W and H must be positives integers";
 				exit 3;
 			}
-		 	SCREEN_RESOLUTION="${size_param}${W}x${H}"	
+		 	SCREEN_RESOLUTION="${size_param}${W}x${H}"
 			;;
 
 		*)
@@ -247,7 +247,7 @@ do
 		--old-params )
 			use_old_args=1
 			;;
-		*) 
+		*)
 			break
 			;;
 	esac

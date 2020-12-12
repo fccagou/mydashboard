@@ -1,22 +1,11 @@
 {
-  "SITE": {
-    "domaine1": {
-      "groupe1": {
-          "host1": { "proto": "rdp", "sec": "nla" } ,
-          "host2": { "k1": "hop" }
-           },
-      "groupe2": [
-      ]
-    },
-    "domaine2": {
-    }
-  } ,
   "FRANCE": {
     "DOMAIN1": {
-       "rouge" : [
-          "TS-01",
-          "TS-02"
-       ],
+       "rouge" :{
+          "rdp": { "proto": "rdp"},
+          "rdp-nla": { "proto": "rdp", "sec": "nla" },
+          "rdp-tls": { "proto": "rdp", "sec": "tls" }
+       },
        "jaune" : [
           "TS-11",
           "TS-12"
@@ -71,10 +60,11 @@
        "blanc" : [
           "TS-32"
        ],
-       "bleu" : [
-         "lagoon",
-         "iririki"
-       ]
+       "bleu" : {
+         "ssh-lagoon" : { "proto": "ssh" },
+         "iririki": {}
+       }
+
     }
   }
 

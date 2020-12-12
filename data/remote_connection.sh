@@ -1,23 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
 SITE="${1}"
 DOMAIN="${2}"
 GROUP="${3}"
 REMOTE_HOST="${4}"
+PROTO="${5}"
+SEC="${6}"
 
-cat - <<EOF_REMOTE
-Accessing to ${SITE}/${DOMAIN}/${GROUP}/${REMOTE_HOST}
 
-This is a sample script for test purpose.
-Make your own script. The remote connection can be different
-depending on SITE, DOMAIN and GROUP parameters.
-
-EOF_REMOTE
+if [ "${PROTO}" == "ssh" ] || [ "${GROUP}" == "bleu" ]
+then
+    if ! bash -c "</dev/tcp/${REMOTE_HOST}/22" >/dev/null 2>&1
+	then
+		ret=1
+		echo "Host ${REMOTE_HOST} unreachable" >/dev/stderr
+	else
+		statusfile="$(/usr/bin/mktemp -p /dev/shm)"
+		errfile="$(/usr/bin/mktemp -p /dev/shm)"
+		xterm_errfile="$(/usr/bin/mktemp -p /dev/shm)"
+		xterm -T "Connecting to ${USER}@${SITE}/${DOMAIN}/${GROUP}/${REMOTE_HOST}"  -e "ssh ${REMOTE_HOST} 2>\"${errfile}\"; echo \$? > \"${statusfile}\"" 2> "${xterm_errfile}"
+		ret=$?
+		if [ "${ret}" == "0" ]
+		then
+		    ret="$(cat "${statusfile}")"
+			cat "${errfile}" >/dev/stderr
+		else
+			cat "${xterm_errfile}" > /dev/stderr
+		fi
+		/bin/rm "${statusfile}" "${errfile}" "${xterm_errfile}"
+	fi
+	exit ${ret}
+fi
 
 some_alea=$(( RANDOM % 3 ))
 
-# This sleep cmd is used to check te button spinner on the gui
-sleep ${some_alea}
+cat - <<EOF_REMOTE
 
 # Here we check the stderr message cacthing from dashboard service.
 [ "${some_alea}" != "0" ] \

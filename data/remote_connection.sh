@@ -36,15 +36,53 @@ some_alea=$(( RANDOM % 3 ))
 
 cat - <<EOF_REMOTE
 
-# Here we check the stderr message cacthing from dashboard service.
-[ "${some_alea}" != "0" ] \
-	&& printf -- "This is an error mascarade for testing purpose (${some_alea})" >/dev/stderr
+This is a mock script for testing purpose.
+
+   Make your own script. The remote connection can be different
+   depending on SITE, DOMAIN and GROUP parameters.
+
+Parameters are:
+
+   1:        SITE = ${SITE}
+   2:      DOMAIN = ${DOMAIN}
+   3:       GROUP = ${GROUP}
+   4: REMOTE_HOST = ${REMOTE_HOST}
+   5:       PROTO = ${PROTO}
+   6:         SEC = ${SEC}
+
+
+It generates a random value in (0..3).
+
+  Current value is : ${some_alea}
+
+If the value is greater then 0, a sleep sequence is set
+to test the button's spinner on gui.
+
+The value is used as script return status to test gui popup
+
+
+EOF_REMOTE
+
+
+if [ "${some_alea}" != "0" ]
+then
+   printf -- "    Sleeping ${some_alea} sec \n"
+   # This sleep cmd is used to check te button spinner on the gui
+   sleep ${some_alea}
+   # Here we check the stderr message cacthing from dashboard service.
+	printf -- "This is an error mascarade for testing purpose withc return's value (${some_alea})" >/dev/stderr
+fi
 
 
 # Here we check the exit status
-# if status is not 0, a modal box must appears on the gui showing
-# - this status value
-# - the stdout meg
-# - the above stderr msg
+cat <<EOF_FOOT
+
+if status is not 0, a modal box must appears on the gui showing
+- this status value (${some_alea})
+- the stdout meg
+- the above stderr msg
+
+EOF_FOOT
+
 exit ${some_alea}
 

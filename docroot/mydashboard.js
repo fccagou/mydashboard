@@ -61,10 +61,25 @@ function RemoteDisplay( container_id ) {
 
                 $.each( val , function(group, remote_host_list ) {
 
-                    $.each( remote_host_list, function(h) {
+                    $.each( remote_host_list, function(h, attrs) {
+                        // TODO: add default value from conf
+                        var url_options='';
 
-                        remote_host=remote_host_list[h]
-                        var url = '/remote/' + site + '/' + domain + '/' + group + '/' + remote_host;
+                        if ( typeof(h) === 'number' ) {
+                            remote_host=remote_host_list[h]
+                        } else {
+                            remote_host=h
+                            if ( 'proto' in attrs ) {
+                                // TODO: add check safe parameters.
+                                url_options='?proto=' + attrs['proto'];
+                                if ( 'sec' in attrs ) {
+                                    url_options += '&sec=' + attrs['sec'];
+                                }
+                            }
+                        }
+
+                        var url = '/remote/' + site + '/' + domain + '/' + group + '/' + remote_host + url_options;
+                        ;
                         items.push('<button onClick="api_exec(\'' + url +'\', \'#button'+i+'\');" class="btn btn-' + group + '" role="button" data-toggle="tooltip" data-placement="top" title=" Connexion à '+domain+'" id="button'+i+'">'+remote_host+'</button>');
                         i++;
 

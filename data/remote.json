@@ -1,4 +1,16 @@
 {
+  "SITE": {
+    "domaine1": {
+      "groupe1": {
+          "host1": { "proto": "rdp", "sec": "nla" } ,
+          "host2": { "k1": "hop" }
+           },
+      "groupe2": [
+      ]
+    },
+    "domaine2": {
+    }
+  } ,
   "FRANCE": {
     "DOMAIN1": {
        "rouge" : [

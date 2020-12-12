@@ -400,56 +400,24 @@ def run_cmd(cmd_set):
     Returns subprocess status and stdout/stderr.
     Those informations are sent back to ui.
     """
-    # Create pipe to communicate with fork child.
-    r, w = os.pipe()
-    # Go fork.
-    pid = os.fork()
-    if pid != 0:
-        # ***** MAIN PROCESS *************
-        log("CMD : %s\n" % (cmd_set))
-        debug("CMD : %s\n" % (cmd_set))
-        # No need to write in the pipe.
-        os.close(w)
-        # In main process, waiting child status and logs.
-        data=""
-        with os.fdopen(r) as child_input:
-            data = child_input.readlines()
-            log("MSG FROM MY CHILD: \n%s" % "".join(data))
-        # Send back informations.
-        return (data[0].strip(), "".join(data[1:]))
+    exit_code = 0
+    status = 200
+    pid = -1
 
-    # ***** CHILD PROCESS ****************
-    # Leave parent's session context.
-    os.setsid()
-    # No need to read in the pipe.
-    os.close(r)
+    try:
+        p=subprocess.Popen(cmd_set, shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 
-    # Redirect the standard I/O file descriptors to father's pipe
-    # Useful to get error
-    os.dup2(w, 0)  # standard input (0)
-    os.dup2(w, 1)  # standard output (1)
-    os.dup2(w, 2)  # standard error (2)
+        try:
+            p.wait(2)
+        except subprocess.TimeoutExpired:
+            # process still running, it's ok
+            True
+        pid = p.pid
 
-    # Run commands.
-    # PYTHON3 subprocess.run(("/usr/bin/gnome-terminal"), shell=True)
-    p=subprocess.Popen(cmd_set, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    # TODO os.umask()
-    # waiting end of process and get status.
-    status = p.wait()
-    # debug
-    if status == 0:
-        debug("SUCCESS\n%s\n%s\n" % (out, err))
-    else:
-        debug("ERR:\n%s\n%s\n" % (out, err))
+    except subprocess.CalledProcessError:
+        status = 503
 
-    # Send status to father and close pipe. If not closed,
-    # the father will wait forever !
-    w = os.fdopen(w, 'w')
-    w.write("%d\n%s\n%s\n" % (status, out.decode('utf-8'), err.decode('utf-8')))
-    w.close()
-    # Say Goodbye!
-    os._exit(0)
+    return '{0}\npid: {1}}}'.format(status, pid)
 
 
 def launch_gui(config):

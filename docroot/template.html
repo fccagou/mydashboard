@@ -52,15 +52,16 @@
 
     <div class="container-fluid">
         <div class="row" id="remote">
+            Interface Loading...
         </div>
     </div>
 
 
     <script>
-        $(document).ready(function(){
-            RemoteDisplay('#remote');
-            CreateNavBar('#mynav');
-        });
+      document.addEventListener('DOMContentLoaded', (event) => {
+         makeInterface ();
+      });
+
     </script>
 
 </body>

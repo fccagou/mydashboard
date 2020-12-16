@@ -38,7 +38,9 @@ function api_exec( api , html_object) {
 
 }
 
-function RemoteDisplay( container_id ) {
+
+
+async function RemoteDisplay( container_id ) {
 
     $.getJSON('/remote/list', function ( data ) {
 
@@ -103,7 +105,7 @@ function RemoteDisplay( container_id ) {
 }
 
 
-function CreateNavBar( container_id ) {
+async function CreateNavBar( container_id ) {
 
     $.getJSON('/conf/menu', function ( data ) {
         var items = [];
@@ -117,3 +119,11 @@ function CreateNavBar( container_id ) {
     });
 }
 
+
+
+
+async function makeInterface () {
+    await CreateNavBar('#mynav');
+    await RemoteDisplay('#remote');
+    setTimeout(makeInterface, 60000);
+};

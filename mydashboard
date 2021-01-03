@@ -491,6 +491,7 @@ def launch_gui(config):
 
 def remote_connection(start_response, environ):
 
+    # FIXME: catch split error
     (site, domain, group, remote_host) = environ["PATH_INFO"][8:].split("/")
     opts = parse_qs(environ["QUERY_STRING"])
     if "proto" in opts:
@@ -567,6 +568,7 @@ def application(environ, start_response):
         "/computer.png",
         "/mydashboard.js",
         "/mydashboard.css",
+        "/d3.v6.min.js",
     ]:
         return static_page(
             start_response, config.document_root, environ["PATH_INFO"][1:]

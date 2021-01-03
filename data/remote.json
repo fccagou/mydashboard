@@ -1,71 +1,37 @@
 {
   "FRANCE": {
     "DOMAIN1": {
-       "rouge" :{
-          "rdp": { "proto": "rdp"},
-          "rdp-nla": { "proto": "rdp", "sec": "nla" },
-          "rdp-tls": { "proto": "rdp", "sec": "tls" }
-       },
-       "jaune" : [
-          "TS-11",
-          "TS-12"
-       ],
-       "vert" : [
-          "TS-21",
-          "TS-22"
-       ],
-       "blanc" : [
-          "TS-31",
-          "TS-32"
-       ]
+      "rouge": {
+        "rdp": { "proto": "rdp" },
+        "rdp-nla": { "proto": "rdp", "sec": "nla" },
+        "rdp-tls": { "proto": "rdp", "sec": "tls" }
+      },
+      "jaune": ["TS-11", "TS-12"],
+      "vert": ["TS-21", "TS-22"],
+      "blanc": ["TS-31", "TS-32"]
     },
     "DOMAIN2": {
-       "rouge" : [
-          "TS-01"
-       ],
-       "jaune" : [
-          "TS-12"
-       ],
-       "vert" : [
-          "TS-21"
-       ],
-       "blanc" : [
-          "TS-32"
-       ],
-       "nocolor" : [
-         "admin-srv01",
-         "admin-srv02"
-       ]
+      "rouge": ["TS-01"],
+      "jaune": ["TS-12"],
+      "vert": ["TS-21"],
+      "blanc": ["TS-32"],
+      "nocolor": ["admin-srv01", "admin-srv02"]
     }
   },
   "VANUATU": {
     "DOMAIN2": {
-       "rouge" : [
-          "TS-01"
-       ],
-       "jaune" : [
-          "TS-11"
-       ],
-       "vert" : [
-          "TS-21"
-       ],
-       "blanc" : [
-          "TS-31"
-       ]
+      "rouge": ["TS-01"],
+      "jaune": ["TS-11"],
+      "vert": ["TS-21"],
+      "blanc": ["TS-31"]
     },
     "DOMAIN3": {
-       "vert" : [
-          "TS-21"
-       ],
-       "blanc" : [
-          "TS-32"
-       ],
-       "bleu" : {
-         "ssh-lagoon" : { "proto": "ssh" },
-         "iririki": {}
-       }
-
+      "vert": ["TS-21"],
+      "blanc": ["TS-32"],
+      "bleu": {
+        "ssh-lagoon": { "proto": "ssh" },
+        "iririki": {}
+      }
     }
   }
-
 }

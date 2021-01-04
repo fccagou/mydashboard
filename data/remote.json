@@ -1,4 +1,38 @@
 {
+  "version": "0.0.10",
+  "defaults": {
+    "rdp": { "sec": "nla" },
+    "ssh": { "port": 22 }
+  },
+  "hosts": [
+    {
+      "name": "rdp01",
+      "config": {
+        "proto": "rdp",
+        "rdp": {
+          "sec": "nla"
+        },
+        "site": "vu",
+        "domain": "vanuatu.net",
+        "group": "1"
+      }
+    },
+    {
+      "name": "rdp02",
+      "config": {
+        "proto": "rdp",
+        "rdp": {
+          "sec": "toto"
+        }
+      }
+    },
+    {
+      "name": "ssh01",
+      "config": {
+        "proto": "ssh"
+      }
+    }
+  ],
   "FRANCE": {
     "DOMAIN1": {
       "rouge": {

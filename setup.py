@@ -19,7 +19,7 @@
 
 from distutils.core  import setup
 setup(name='mydashboard',
-        version='0.0.10',
+        version='0.0.11',
         description='Userland Dashboard microservice',
         url='http://github.com/fccagou/tools',
         author='fccagou',
@@ -42,6 +42,7 @@ setup(name='mydashboard',
             ('share/doc/mydashboard/samples',[
                 'data/conf.json',
                 'data/rdp_connection.sh',
+                'data/remote_connection.sh',
                 'data/remote.json',
                 ]),
             ('/etc/mydashboard', [

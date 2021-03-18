@@ -57,7 +57,9 @@
       "rouge": ["TS-01"],
       "jaune": ["TS-11"],
       "vert": ["TS-21"],
-      "blanc": ["TS-31"]
+      "blanc": ["TS-31"],
+      "marron": ["TS-41"],
+      "gris": ["TS-51"]
     },
     "DOMAIN3": {
       "vert": ["TS-21"],

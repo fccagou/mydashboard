@@ -48,9 +48,21 @@ body {
     border-color: #17a2b8;
 }
 
+.btn-marron {
+    color: #fff;
+    background-color: #704a4a;
+    border-color: #482828;
+}
+
+.btn-gris {
+    color: #343a40;
+    background-color: #ccc;
+    border-color: #5482828;
+}
+
 
 .btn-nocolor {
     color: #343a40;
-    background-color: #bbbbbb;
+    background-color: #eee;
     border-color: #343a40;
 }

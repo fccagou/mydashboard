@@ -284,7 +284,7 @@ async function RemoteDisplay(container_id) {
                   url +
                   "', '#button" +
                   i +
-                  '\');" class="btn btn-' +
+                  '\');" class="btn group-' +
                   group +
                   '" role="button" data-toggle="tooltip" data-placement="top" title=" Connexion à ' +
                   domain +

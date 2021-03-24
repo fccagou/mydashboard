@@ -1,48 +1,48 @@
 
-.btn-rouge {
+.group-rouge {
     color: #fff;
     background-color: #dc3545;
     border-color: #dc3545;
 }
-.btn-jaune {
+.group-jaune {
     color: #212529;
     background-color: #ffc107;
     border-color: #ffc107;
 }
 
-.btn-vert {
+.group-vert {
     color: #fff;
     background-color: #28a745;
     border-color: #28a745;
 }
 
 
-.btn-blanc {
+.group-blanc {
     color: #343a40;
     background-color: #ffffff;
     border-color: #343a40;
 }
 
-.btn-bleu {
+.group-bleu {
     color: #fff;
     background-color: #17a2b8;
     border-color: #17a2b8;
 }
 
-.btn-marron {
+.group-marron {
     color: #fff;
     background-color: #704a4a;
     border-color: #482828;
 }
 
-.btn-gris {
+.group-gris {
     color: #343a40;
     background-color: #ccc;
-    border-color: #5482828;
+    border-color: #548282;
 }
 
 
-.btn-nocolor {
+.group-nocolor {
     color: #343a40;
     background-color: #eee;
     border-color: #343a40;

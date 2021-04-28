@@ -2,4 +2,6 @@
 dist/
 MANIFEST
 build/
-pkg/
+pkg/*
+!pkg/arch/PKGBUILD
+

@@ -57,6 +57,7 @@ setup(name='mydashboard',
                 'docroot/mydashboard.js',
                 'docroot/mydashboard.css',
                 'docroot/computer.png',
+                'docroot/d3.v6.min.js',
                 ]),
             ],
         )

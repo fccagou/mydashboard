@@ -147,7 +147,7 @@ async function RemoteDisplay(container_id) {
     var i = 0;
     if (
       data.hasOwnProperty("version") &&
-      version_compare(data.version, "0.0.12") > 0
+      version_compare(data.version, "0.0.13") > 0
     ) {
       var svg = d3.select(container_id).select("svg");
       svg.attr("width", 640).attr("height", 480);

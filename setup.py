@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 # This file is part of mydashboard.
-# Copyright 2019-2020 fccagou <me@fccagou.fr>
+# Copyright 2019-2021 fccagou <me@fccagou.fr>
 #
 # mydashboard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 from distutils.core  import setup
 setup(name='mydashboard',
-        version='0.0.12',
+        version='0.0.13',
         description='Userland Dashboard microservice',
         url='http://github.com/fccagou/tools',
         author='fccagou',

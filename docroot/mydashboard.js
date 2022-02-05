@@ -66,7 +66,7 @@ function api_exec(api, html_object) {
               "</p>"
           );
           // $("#myModalCloseBtn").attr("class", "btn btn-success");
-          $("#myModal").modal();
+          new bootstrap.Modal($("#myModal")).show();
         }
       } else {
         // Code KO
@@ -75,7 +75,7 @@ function api_exec(api, html_object) {
         );
         $("#myModalBody").text(xhr.responseText);
         //$("#myModalCloseBtn").attr("class", "btn btn-danger");
-        $("#myModal").modal();
+        new bootstrap.Modal($("#myModal")).show();
       }
     }
   });

@@ -574,7 +574,11 @@ def application(environ, start_response):
         "/js/vue.global.prod.js",
         "/js/app.js",
         "/js/views/App.vue.js",
+        "/js/views/RemoteAccess.vue.js",
         "/js/components/NavBar.vue.js",
+        "/js/components/RemoteAccess/Site.vue.js",
+        "/js/components/RemoteAccess/Domain.vue.js",
+        "/js/components/RemoteAccess/Host.vue.js",
     ]:
         return static_page(
             start_response, config.document_root, environ["PATH_INFO"][1:]

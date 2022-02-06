@@ -51,7 +51,7 @@ setup(name='mydashboard',
             ('/etc/mydashboard/html', [
                 'docroot/css/bootstrap.min.css',
                 'docroot/css/all.css',
-                'docroot/template.html',
+                'docroot/index.html',
                 'docroot/js/bootstrap.bundle.js',
                 'docroot/css/mydashboard.css',
                 'docroot/img/computer.svg',

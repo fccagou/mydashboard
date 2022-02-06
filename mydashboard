@@ -617,7 +617,7 @@ def application(environ, start_response):
         # TODO: passer un message d'erreur
         True
 
-    return static_page(start_response, config.document_root, "template.html")
+    return static_page(start_response, config.document_root, "index.html")
 
 
 # -----------------------------------------------------------------

@@ -77,7 +77,7 @@ const RemoteAccessComponent = {
             }
             this.connectionInProgress = true;
             connection.host_data_ref.loading = true;
-            axios.get(`/remote/${connection.site}/${connection.domain}/${connection.color}/${connection.hostname}`, {
+            axios.get(`/remote/${connection.site}/${connection.domain}/${connection.group}/${connection.hostname}`, {
                 params: connection.specific_parameters,
             }).then((response) => {
                 this.connectionInProgress = false;

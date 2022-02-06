@@ -1,4 +1,4 @@
-const Site = {
+const SiteComponent = {
     props: [
         'name',
         'domains',

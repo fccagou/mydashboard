@@ -1,4 +1,4 @@
-const Domain = {
+const DomainComponent = {
     props: [
         'name',
         'colors',

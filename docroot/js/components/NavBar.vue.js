@@ -1,5 +1,5 @@
-const NavBar = {
-    template: `
+const NavBarComponent = {
+  template: `
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">My Dashboard</a>
@@ -14,16 +14,16 @@ const NavBar = {
         </div>
       </div>
     </nav>`,
-    data() {
-        return {
-            links: [],
-        }
-    },
-    beforeMount() {
-        axios.get('/conf/menu').then((response) => {
-            this.links = response.data;
-        }).catch((error) => {
-            console.error("Fail to get menu");
-        });
+  data() {
+    return {
+      links: [],
     }
+  },
+  beforeMount() {
+    axios.get('/conf/menu').then((response) => {
+      this.links = response.data;
+    }).catch((error) => {
+      console.error("Fail to get menu");
+    });
+  }
 };

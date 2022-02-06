@@ -1,4 +1,4 @@
-const Host = {
+const HostComponent = {
     props: [
         'color',
         'hostname',

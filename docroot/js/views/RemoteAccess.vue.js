@@ -1,4 +1,4 @@
-const RemoteAccess = {
+const RemoteAccessComponent = {
     template: `
     <!-- The Modal -->
     <div class="modal fade" tabindex="-1" id="myModal">

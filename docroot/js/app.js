@@ -1,15 +1,28 @@
 const app = Vue.createApp({
     el: '#app',
-    template: '<app></app>',
+    template: `
+    <nav-bar/>
+    <div class="container-fluid">
+        <router-view/>
+    </div>`,
 });
 
-app.component('app', App);
-app.component('nav-bar', NavBar);
+// Configure routes
+const router = VueRouter.createRouter({
+    history: VueRouter.createWebHashHistory(),
+    routes
+});
+app.use(router);
 
-app.component('remote-access', RemoteAccess);
-app.component('site', Site);
-app.component('domain', Domain);
-app.component('host', Host);
+// Views
+app.component('remote-access', RemoteAccessComponent);
+app.component('customization', CustomizationComponent);
+
+// Components
+app.component('nav-bar', NavBarComponent);
+app.component('site', SiteComponent);
+app.component('domain', DomainComponent);
+app.component('host', HostComponent);
 
 window.addEventListener('DOMContentLoaded', () => {
     app.mount('#app');

@@ -311,29 +311,7 @@ async function RemoteDisplay(container_id) {
   }); // data
 }
 
-async function CreateNavBar(container_id) {
-  $.getJSON("/conf/menu", function (data) {
-    var items = [];
-    var i = 0;
-    $.each(data, function (title) {
-      items.push(
-        '<a class="nav-link" href="' +
-          data[title] +
-          '" target="menu' +
-          i +
-          '">' +
-          title +
-          "</a>"
-      );
-      i++;
-    });
-
-    $(container_id).html(items.join(""));
-  });
-}
-
 async function makeInterface() {
-  await CreateNavBar("#mynav");
   await RemoteDisplay("#remote");
   setTimeout(makeInterface, 60000);
 }

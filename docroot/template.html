@@ -11,22 +11,19 @@
     <script src="/js/bootstrap.bundle.js" integrity="sha384-phDDN5HPKGi2opHX/b269W21Cu3XoGuAAltbAIhu8Ukkegzt87W3IZQKnDqRGmED" crossorigin="anonymous"></script>
     <script src="/js/d3.v6.min.js"></script>
     <script src="/js/mydashboard.js"></script>
+    <script src="/js/axios.min.js" integrity="sha384-cLy/QIp+RoRwaNnhJLMkvAKaF4COLNqAQ7+vznYxje2B9BROqfBXkqwqcQm5Caap" crossorigin="anonymous"></script>
+
+    <!-- VueJS -->
+    <script src="/js/vue.global.prod.js" integrity="sha384-xwpDDJ3UTdNHOF2wSc0WhaRlsXaLX0d320zeCiTzzSeQxCXPKGUrfIeCtATq9J74" crossorigin="anonymous"></script>
+    <!-- Load Components -->
+    <script src="/js/components/NavBar.vue.js"></script>
+    <!-- Load Views -->
+    <script src="/js/views/App.vue.js"></script>
+    <!-- Load VueJS App -->
+    <script src="/js/app.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/">My Dashboard</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <div class="navbar-nav" id="mynav">
-            <a class="nav-link" href="/doc">help</a>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div id="app"></div>
 
     <!-- The Modal -->
     <div class="modal fade" tabindex="-1" id="myModal">

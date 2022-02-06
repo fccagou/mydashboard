@@ -570,6 +570,11 @@ def application(environ, start_response):
         "/css/mydashboard.css",
         "/css/mydashboard-custom.css",
         "/js/d3.v6.min.js",
+        "/js/axios.min.js",
+        "/js/vue.global.prod.js",
+        "/js/app.js",
+        "/js/views/App.vue.js",
+        "/js/components/NavBar.vue.js",
     ]:
         return static_page(
             start_response, config.document_root, environ["PATH_INFO"][1:]

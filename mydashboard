@@ -565,7 +565,7 @@ def application(environ, start_response):
         "/css/bootstrap.min.css",
         "/js/jquery.min.js",
         "/js/bootstrap.bundle.js",
-        "/img/computer.png",
+        "/img/computer.svg",
         "/js/mydashboard.js",
         "/css/mydashboard.css",
         "/css/mydashboard-custom.css",

@@ -237,7 +237,7 @@ async function RemoteDisplay(container_id) {
         items.push('<div class="col">');
         items.push('<div class="card border-dark mb-3" >');
         items.push(
-          '<div class="card-header"><img src="/img/computer.png" />' +
+          '<div class="card-header d-flex align-items-center"><img class="site-icon" src="/img/computer.svg" />' +
             site +
             "</div>"
         );

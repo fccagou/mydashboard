@@ -563,7 +563,6 @@ def application(environ, start_response):
     # Static files
     if environ["PATH_INFO"] in [
         "/css/bootstrap.min.css",
-        "/js/jquery.min.js",
         "/js/bootstrap.bundle.js",
         "/img/computer.svg",
         "/js/mydashboard.js",

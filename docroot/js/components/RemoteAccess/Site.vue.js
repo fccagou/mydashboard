@@ -13,8 +13,8 @@ const SiteComponent = {
                 </div>
                 <div class="card-body text-dark">
                     <div class="row">
-                        <domain v-for="(colors, domainName) in domains" :key="name + '-' + domainName"
-                            :name="domainName" :colors="colors"
+                        <domain v-for="(groups, domainName) in domains" :key="name + '-' + domainName"
+                            :name="domainName" :groups="groups"
                             @connection-request="forwardConnectionRequest"
                             />
                     </div>

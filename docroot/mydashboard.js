@@ -66,7 +66,7 @@ function api_exec(api, html_object) {
               "</p>"
           );
           // $("#myModalCloseBtn").attr("class", "btn btn-success");
-          $("#myModal").modal();
+          new bootstrap.Modal($("#myModal")).show();
         }
       } else {
         // Code KO
@@ -75,7 +75,7 @@ function api_exec(api, html_object) {
         );
         $("#myModalBody").text(xhr.responseText);
         //$("#myModalCloseBtn").attr("class", "btn btn-danger");
-        $("#myModal").modal();
+        new bootstrap.Modal($("#myModal")).show();
       }
     }
   });
@@ -317,13 +317,13 @@ async function CreateNavBar(container_id) {
     var i = 0;
     $.each(data, function (title) {
       items.push(
-        '<li class="nav-item"><a class="nav-link" href="' +
+        '<a class="nav-link" href="' +
           data[title] +
           '" target="menu' +
           i +
           '">' +
           title +
-          "</a></li>"
+          "</a>"
       );
       i++;
     });

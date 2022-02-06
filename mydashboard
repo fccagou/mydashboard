@@ -574,6 +574,7 @@ def application(environ, start_response):
         "/js/routes.js",
         "/js/views/RemoteAccess.vue.js",
         "/js/views/Customization.vue.js",
+        "/js/views/NotFound.vue.js",
         "/js/components/NavBar.vue.js",
         "/js/components/RemoteAccess/Site.vue.js",
         "/js/components/RemoteAccess/Domain.vue.js",

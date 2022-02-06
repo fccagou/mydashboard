@@ -17,6 +17,7 @@ app.use(router);
 // Views
 app.component('remote-access', RemoteAccessComponent);
 app.component('customization', CustomizationComponent);
+app.component('not-found', NotFoundComponent);
 
 // Components
 app.component('nav-bar', NavBarComponent);

@@ -39,11 +39,21 @@ const RemoteAccessComponent = {
             modal: {
                 title: '',
                 body: '',
-            }
+            },
+            interval: null,
         }
     },
     beforeMount() {
-        this.loadData();
+        if (!this.interval) {
+            this.loadData();
+            this.interval = setInterval(this.loadData, 60000);
+        }
+    },
+    beforeUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        this.interval = null;
     },
     methods: {
         loadData() {
@@ -59,8 +69,6 @@ const RemoteAccessComponent = {
                 //TODO: show error toast
                 console.error("Fail to get list");
             });
-
-            setTimeout(this.loadData, 60000);
         },
         executeConnection(connection) {
             if (this.connectionInProgress) {

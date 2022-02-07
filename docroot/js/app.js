@@ -14,6 +14,9 @@ const router = VueRouter.createRouter({
 });
 app.use(router);
 
+const vuex = Vuex.createStore(store);
+app.use(vuex);
+
 // Views
 app.component('remote-access', RemoteAccessComponent);
 app.component('customization', CustomizationComponent);

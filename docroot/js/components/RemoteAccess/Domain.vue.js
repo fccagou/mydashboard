@@ -2,6 +2,7 @@ const DomainComponent = {
     props: [
         'name',
         'groups',
+        'lock',
     ],
     emits: ['connection-request'],
     template: `
@@ -14,6 +15,7 @@ const DomainComponent = {
                     :hostname="hostName"
                     :group="groupName"
                     :specific_parameters="param"
+                    :lock="lock"
                     @connection-request="forwardConnectionRequest"/>
             </template>
         </div>

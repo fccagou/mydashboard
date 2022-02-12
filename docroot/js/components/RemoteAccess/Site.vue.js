@@ -2,6 +2,7 @@ const SiteComponent = {
     props: [
         'name',
         'domains',
+        'lock',
     ],
     emits: ['connection-request'],
     template: `
@@ -14,7 +15,7 @@ const SiteComponent = {
                 <div class="card-body text-dark">
                     <div class="row">
                         <domain v-for="(groups, domainName) in domains" :key="name + '-' + domainName"
-                            :name="domainName" :groups="groups"
+                            :name="domainName" :groups="groups" :lock="lock"
                             @connection-request="forwardConnectionRequest"
                             />
                     </div>

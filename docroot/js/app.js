@@ -4,7 +4,8 @@ const app = Vue.createApp({
     <nav-bar/>
     <div class="container-fluid">
         <router-view/>
-    </div>`,
+    </div>
+    <toasts/>`,
 });
 
 // Configure routes
@@ -14,8 +15,8 @@ const router = VueRouter.createRouter({
 });
 app.use(router);
 
-const vuex = Vuex.createStore(store);
-app.use(vuex);
+// const vuex = Vuex.createStore(store);
+app.use(store);
 
 // Views
 app.component('remote-access', RemoteAccessComponent);
@@ -23,6 +24,8 @@ app.component('customization', CustomizationComponent);
 app.component('not-found', NotFoundComponent);
 
 // Components
+app.component('toasts', ToastsComponent);
+app.component('toast', ToastComponent);
 app.component('nav-bar', NavBarComponent);
 app.component('site', SiteComponent);
 app.component('domain', DomainComponent);

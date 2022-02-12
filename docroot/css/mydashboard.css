@@ -23,4 +23,28 @@ body {
 .btn:focus,.btn:active {
     outline: none !important;
     box-shadow: none;
- }
+}
+
+.no-z-index {
+    z-index: unset !important;
+}
+
+/** Toast **/
+.toast {
+    background-color: #ffffff;
+}
+
+.toast-danger > .toast-header {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+.toast-warning > .toast-header {
+    background-color: #ffc107;
+    color: #000000;
+}
+
+.toast-success > .toast-header {
+    background-color: #198754;
+    color: #ffffff;
+}

@@ -64,8 +64,6 @@ const RemoteAccessComponent = {
             axios.get(`/remote/${connection.site}/${connection.domain}/${connection.group}/${connection.hostname}`, {
                 params: connection.specific_parameters,
             }).then((response) => {
-                this.connectionInProgress = false;
-                connection.host_data_ref.loading = false;
                 if (response.data.status !== 0) {
                     this.$store.commit('addToast', {
                         type: 'danger',
@@ -103,6 +101,9 @@ const RemoteAccessComponent = {
                         delaySecond: 10,
                     });
                 }
+            }).finally(() => {
+                this.connectionInProgress = false;
+                connection.host_data_ref.loading = false;
             })
         }
     }

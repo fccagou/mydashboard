@@ -413,7 +413,7 @@ def login_ok(start_response, token):
         ("Content-type", "text/plain"),
         ("Content-Length", str(len(output))),
         ("Location", "/"),
-        ("Set-Cookie", "MYTOKEN=%s" % token),
+        ("Set-Cookie", "MYTOKEN=%s; HttpOnly; SameSite=Strict" % token),
     ]
     start_response(status, response_headers)
     return wsgi_to_bytes(output)

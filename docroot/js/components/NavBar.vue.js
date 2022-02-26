@@ -1,6 +1,6 @@
 const NavBarComponent = {
   template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow">
       <div class="container-fluid">
         <router-link class="navbar-brand" :to="{ name: 'RemoteAccess' }">My Dashboard</router-link>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

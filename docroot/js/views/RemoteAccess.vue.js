@@ -1,7 +1,7 @@
 const RemoteAccessComponent = {
     template: `
     <div id="remote">
-        <div class="row gy-4" :class="'row-cols-' + nbColByRow">
+        <div class="d-flex flex-wrap gap-4 justify-content-evenly">
             <site v-for="(domains, siteName, index) in sites" :key="siteName"
                 :name="siteName"
                 :domains="domains"
@@ -18,7 +18,6 @@ const RemoteAccessComponent = {
             sites: [],
             connectionInProgress: false,
             interval: null,
-            nbSitePerLine: 4,
         }
     },
     beforeMount() {
@@ -110,9 +109,4 @@ const RemoteAccessComponent = {
             })
         }
     },
-    computed: {
-        nbColByRow: function () {
-            return Math.min(this.nbSitePerLine, Object.keys(this.sites).length);
-        }
-    }
 };

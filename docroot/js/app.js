@@ -2,8 +2,8 @@ const app = Vue.createApp({
     el: '#app',
     template: `
     <nav-bar/>
-    <div class="container-fluid">
-        <router-view/>
+    <div class="container-fluid px-4">
+        <router-view class="mt-4"/>
     </div>
     <toasts/>`,
 });

@@ -6,8 +6,8 @@ const DomainComponent = {
     ],
     emits: ['connection-request'],
     template: `
-    <div class="col d-flex flex-column align-items-center">
-        <p class="text-danger">{{ name }}</p>
+    <div class="d-flex flex-column align-items-center">
+        <p>{{ name }}</p>
         <div class="btn-group-vertical">
             <template v-for="(hosts, groupName) in formattedGroups">
                 <host v-for="(param, hostName) in hosts"

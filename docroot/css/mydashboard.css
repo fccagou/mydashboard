@@ -1,11 +1,27 @@
-
 body {
-    font-family: "Lato", sans-serif;
-    background: #444;
+    background-color: var(--bs-gray-300);
 }
 
-#remote {
-    padding-top:1em;
+.rounded-2xl {
+	border-radius: 1rem;
+}
+
+.rounded-top-2xl {
+	border-top-left-radius: 1rem !important;
+	border-top-right-radius: 1rem !important;
+}
+
+.bg-site {
+    background-color: rgba(0,0,0,.03);
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.host-padding {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 .site-icon {

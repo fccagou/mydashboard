@@ -7,7 +7,7 @@ const HostComponent = {
     ],
     emits: ['connection-request'],
     template: `
-    <button class="btn no-z-index"
+    <button class="btn no-z-index text-nowrap"
         role="button"
         :disabled="disableButton"
         v-on:click="handleRequestConnection"

@@ -6,19 +6,17 @@ const SiteComponent = {
     ],
     emits: ['connection-request'],
     template: `
-    <div class="col justify-content-center">
-        <div class="col">
-            <div class="card border-dark mb-3">
-                <div class="card-header d-flex align-items-center">
-                    <img class="site-icon" src="/img/computer.svg" /> {{ name }}
-                </div>
-                <div class="card-body text-dark">
-                    <div class="row">
-                        <domain v-for="(groups, domainName) in domains" :key="name + '-' + domainName"
-                            :name="domainName" :groups="groups" :lock="lock"
-                            @connection-request="forwardConnectionRequest"
-                            />
-                    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center">
+                <img class="site-icon" src="/img/computer.svg" /> {{ name }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <domain v-for="(groups, domainName) in domains" :key="name + '-' + domainName"
+                        :name="domainName" :groups="groups" :lock="lock"
+                        @connection-request="forwardConnectionRequest"
+                        />
                 </div>
             </div>
         </div>

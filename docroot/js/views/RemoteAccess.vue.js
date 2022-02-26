@@ -1,12 +1,14 @@
 const RemoteAccessComponent = {
     template: `
-    <div id="remote" class="row">
-        <site v-for="(domains, siteName) in sites" :key="siteName"
-            :name="siteName"
-            :domains="domains"
-            :lock="connectionInProgress"
-            @connection-request="executeConnection"
-            />
+    <div id="remote">
+        <div class="row gy-4" :class="'row-cols-' + nbColByRow">
+            <site v-for="(domains, siteName, index) in sites" :key="siteName"
+                :name="siteName"
+                :domains="domains"
+                :lock="connectionInProgress"
+                @connection-request="executeConnection"
+                />
+        </div>
     </div>`,
     data() {
         return {
@@ -16,6 +18,7 @@ const RemoteAccessComponent = {
             sites: [],
             connectionInProgress: false,
             interval: null,
+            nbSitePerLine: 4,
         }
     },
     beforeMount() {
@@ -105,6 +108,11 @@ const RemoteAccessComponent = {
                 this.connectionInProgress = false;
                 connection.host_data_ref.loading = false;
             })
+        }
+    },
+    computed: {
+        nbColByRow: function () {
+            return Math.min(this.nbSitePerLine, Object.keys(this.sites).length);
         }
     }
 };

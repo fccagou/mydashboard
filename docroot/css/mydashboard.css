@@ -24,6 +24,17 @@ body {
     padding-right: 1.5rem;
 }
 
+.site-width {
+    flex: 1;
+}
+
+@media (min-width: 1200px) {
+    .site-width {
+        flex: unset;
+        min-width: 30%;
+    }
+}
+
 .site-icon {
     width: 2rem;
     height: 2rem;

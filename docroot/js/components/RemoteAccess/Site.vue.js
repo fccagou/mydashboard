@@ -6,7 +6,7 @@ const SiteComponent = {
     ],
     emits: ['connection-request'],
     template: `
-    <div class="flex-grow-1 bg-white shadow rounded-2xl">
+    <div class="bg-white shadow rounded-2xl site-width">
         <div class="d-flex align-items-center px-3 py-2 bg-site rounded-top-2xl border-bottom border-2">
             <img class="site-icon" src="/img/computer.svg" /> <span class="font-bold">{{ name }}</span>
         </div>

@@ -569,7 +569,7 @@ def application(environ, start_response):
         "/css/mydashboard.css",
         "/css/mydashboard-custom.css",
         "/js/axios.min.js",
-        "/js/vue.global.prod.js",
+        "/js/vue.global.prod.min.js",
         "/js/vuex.global.prod.js",
         "/js/vue-router.global.prod.js",
         "/js/app.js",

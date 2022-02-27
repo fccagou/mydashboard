@@ -37,9 +37,10 @@ So, the token way to run mydashbard is :
 
 # Developement mode
 
-/!\ You can only run this mode with the git repository. /!\
+To allow use of [VueJS devtools](https://devtools.vuejs.org/), add --devmode parameter
+on your current command line.
 
-Add --devmode parameter on your current command line.
+/!\ You can only run this mode with the git repository. /!\
 
 In unsafe way for example
 

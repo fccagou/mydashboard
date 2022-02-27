@@ -8,7 +8,7 @@ const DomainComponent = {
     template: `
     <div class="d-flex flex-column align-items-center">
         <p>{{ name }}</p>
-        <div class="btn-group-vertical">
+        <div class="btn-group-vertical shadow-lg">
             <template v-for="(hosts, groupName) in formattedGroups">
                 <host v-for="(param, hostName) in hosts"
                     :key="name + '-' + hostName"

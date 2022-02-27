@@ -25,7 +25,7 @@ body {
 }
 
 .site-width {
-    flex: 1;
+    flex: 1 1 auto;
 }
 
 @media (min-width: 1200px) {

@@ -279,7 +279,7 @@ def static_page(start_response, document_root, filename, fullpath=False):
         output = open(real_file_path, "rb").read()
         ctype = mimetypes.guess_type(real_file_path)[0]
 
-        if config.dev_mode:
+        if config.dev_mode and filename in ( "index.html" ):
             output = replaceDependencies(filename, output)
     except:
         status = "500 INTERNAL ERROR"
@@ -325,9 +325,6 @@ def replaceDependencies(filename, file_content):
     Intercepts and corrects javascript dependencies in index.html.
     """
     import re
-
-    if filename != "index.html":
-        return file_content
 
     content = file_content.decode("utf-8")
     for prod, dev in javascript_dependencies.items():

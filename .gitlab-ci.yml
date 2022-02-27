@@ -1,0 +1,45 @@
+
+stages:          # List of stages for jobs, and their order of execution
+  - packaging
+
+pkg-rpm-c7:
+  stage: packaging
+  image: centos:7
+  script:
+    - yum install -y rpm-build
+    - echo "Make rpm for CentOS 7"
+    - ./buildrpm
+    - echo "Package built for CentOS 7"
+    - yum install -y dist/mydashboard*.noarch.rpm
+  artifacts:
+    paths:
+      - dist/mydashboard-*.noarch.rpm
+
+pkg-rpm-rocky8:
+  stage: packaging
+  image: rockylinux:8
+  script:
+    - dnf install -y rpm-build python3
+    - echo "Make rpm for Rockylinux 8"
+    - ./buildrpm
+    - echo "Package built for Rockylinux 8"
+    - dnf install -y dist/mydashboard-*-el8.noarch.rpm
+  artifacts:
+    paths:
+      - dist/mydashboard-*-el8.noarch.rpm
+
+pkg-archlinux:
+  stage: packaging
+  image: archlinux
+  script:
+    - pacman --noconfirm -Sy python fakeroot binutils git
+    - git switch -c "${CI_COMMIT_BRANCH}" # needed by makepkg
+    - useradd build
+    - echo "Make Archlinux pkg"
+    - chown -R build .
+    - cd pkg/arch &&  su build -c "git branch; makepkg"
+    - echo "Package built for Archlinux"
+    - pacman --noconfirm -U mydashboard-*.zst
+  artifacts:
+    paths:
+      - pkg/arch/mydashboard-*.zst

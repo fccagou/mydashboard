@@ -19,7 +19,7 @@
 
 from distutils.core  import setup
 setup(name='mydashboard',
-        version='0.0.13',
+        version='0.1.0',
         description='Userland Dashboard microservice',
         url='http://github.com/fccagou/tools',
         author='fccagou',
@@ -49,26 +49,39 @@ setup(name='mydashboard',
                 'data/mydashboard.conf-default'
                 ]),
             ('/etc/mydashboard/html', [
-                'docroot/css/bootstrap.min.css',
-                'docroot/css/all.css',
                 'docroot/index.html',
-                'docroot/js/bootstrap.bundle.js',
-                'docroot/css/mydashboard.css',
+                ]),
+            ('/etc/mydashboard/html/img', [
                 'docroot/img/favicon.ico',
                 'docroot/img/computer.svg',
-                'docroot/js/axios.js',
-                'docroot/js/vue.global.prod.js',
+                ]),
+            ('/etc/mydashboard/html/css', [
+                'docroot/css/bootstrap.min.css',
+                'docroot/css/all.css',
+                'docroot/css/mydashboard.css',
+                ]),
+            ('/etc/mydashboard/html/js', [
+                'docroot/js/bootstrap.bundle.js',
+                'docroot/js/axios.min.js',
+                'docroot/js/vue.global.prod.min.js',
                 'docroot/js/vuex.global.prod.js',
                 'docroot/js/vue-router.global.prod.js',
                 'docroot/js/app.js',
                 'docroot/js/routes.js',
                 'docroot/js/store.js',
+                ]),
+            ('/etc/mydashboard/html/js/views', [
+                'docroot/js/bootstrap.bundle.js',
                 'docroot/js/views/RemoteAccess.vue.js',
                 'docroot/js/views/Customization.vue.js',
                 'docroot/js/views/NotFound.vue.js',
+                ]),
+            ('/etc/mydashboard/html/js/components', [
                 'docroot/js/components/NavBar.vue.js',
                 'docroot/js/components/Toasts.vue.js',
                 'docroot/js/components/Toast.vue.js',
+                ]),
+            ('/etc/mydashboard/html/js/components/RemoteAccess', [
                 'docroot/js/components/RemoteAccess/Site.vue.js',
                 'docroot/js/components/RemoteAccess/Domain.vue.js',
                 'docroot/js/components/RemoteAccess/Host.vue.js',

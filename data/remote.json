@@ -1,5 +1,5 @@
 {
-  "version": "0.0.13",
+  "version": "0.1.0",
   "defaults": {
     "rdp": { "sec": "nla" },
     "ssh": { "port": 22 }

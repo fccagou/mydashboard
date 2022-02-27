@@ -195,8 +195,17 @@ class MyConfig:
         # Run gui when run the dashboard
         self.run_gui = True
 
+        # Used to place JS development dependencies
+        self.dev_mode = False
 
 config = MyConfig()
+
+# JS dependencies dict { prod: dev }
+javascript_dependencies = {
+    "/js/vue.global.prod.min.js": "/js/vue.global.min.js",
+    "/js/vuex.global.prod.min.js": "/js/vuex.global.min.js",
+    "/js/vue-router.global.prod.min.js": "/js/vue-router.global.min.js",
+}
 
 # -----------------------------------------------------------------
 # Informational functions.
@@ -269,6 +278,9 @@ def static_page(start_response, document_root, filename, fullpath=False):
             real_file_path = os.path.join(document_root, filename)
         output = open(real_file_path, "rb").read()
         ctype = mimetypes.guess_type(real_file_path)[0]
+
+        if config.dev_mode:
+            output = replaceDependencies(filename, output)
     except:
         status = "500 INTERNAL ERROR"
         import traceback
@@ -306,6 +318,23 @@ def jsonapi(start_response, data):
         ctype = "text/plain; charset=UTF-8"
 
     return page(start_response, wsgi_to_bytes(output), ctype=ctype, status=status)
+
+
+def replaceDependencies(filename, file_content):
+    """
+    Intercepts and corrects javascript dependencies in index.html.
+    """
+    import re
+
+    if filename != "index.html":
+        return file_content
+
+    content = file_content.decode("utf-8")
+    for prod, dev in javascript_dependencies.items():
+        pattern = re.compile('<script src="{}" integrity=".*" crossorigin="anonymous"></script>'.format(prod))
+        content = re.sub(pattern, '<script src="{}"></script>'.format(dev), content)
+
+    return content.encode("utf-8")
 
 
 def doc(start_response, config):
@@ -561,7 +590,7 @@ def application(environ, start_response):
             )
 
     # Static files
-    if environ["PATH_INFO"] in [
+    static_files = [
         "/css/bootstrap.min.css",
         "/js/bootstrap.bundle.js",
         "/img/computer.svg",
@@ -584,7 +613,15 @@ def application(environ, start_response):
         "/js/components/RemoteAccess/Site.vue.js",
         "/js/components/RemoteAccess/Domain.vue.js",
         "/js/components/RemoteAccess/Host.vue.js",
-    ]:
+    ]
+
+    # Load JS dependencies
+    if config.dev_mode:
+        static_files += javascript_dependencies.values()
+    else:
+        static_files += javascript_dependencies.keys()
+
+    if environ["PATH_INFO"] in static_files:
         return static_page(
             start_response, config.document_root, environ["PATH_INFO"][1:]
         )
@@ -719,6 +756,9 @@ def main(args, config):
     if args.nogui:
         config.run_gui = False
 
+    if args.devmode:
+        config.dev_mode = True
+
     config.use_token = not args.notoken
 
     # TODO: valider l'existence des scripts
@@ -842,6 +882,9 @@ if __name__ == "__main__":
         "--webbrowser",
         default=None,
         help="Select web browser (default: %s)" % config.webbrowser,
+    )
+    parser.add_argument(
+        "--devmode", action="store_true", help="Use JS developpement dependencies (can only be used with the git repository)"
     )
 
     args = parser.parse_args()

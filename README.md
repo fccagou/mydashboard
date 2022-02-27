@@ -35,6 +35,16 @@ So, the token way to run mydashbard is :
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/ui
 
 
+# Developement mode
+
+/!\ You can only run this mode with the git repository. /!\
+
+Add --devmode parameter on your current command line.
+
+In unsafe way for example
+
+    python ./mydashboard -d -v --notoken --devmode --conf data/conf.json
+
 # The web GUI
 ## At startup
 

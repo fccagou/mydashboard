@@ -45,6 +45,10 @@ body {
     margin-right: 1rem;
 }
 
+.ascii-art {
+    font-family: monospace;
+}
+
 /** Remove blue border on button **/
 .btn:focus,.btn:active {
     outline: none !important;

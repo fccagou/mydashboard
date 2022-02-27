@@ -22,6 +22,18 @@ VERSION=$(grep 'version=' setup.py | sed "s#.* version='## ; s#'.*##")
 
 cd ${0%\/*}
 
-python setup.py -v bdist_rpm --release=$RELEASE --distribution-name=$DISTRIB --obsoletes=pynotif ${requires}
+python_bin="$(type -p python)"
+
+[ -z "${python_bin}" ] && python_bin="$(type -p python3)"
+
+[ -z "${python_bin}" ] && {
+	printf -- "[-] python not found... I leave ...\n"
+    exit 1
+}
+
+printf -- "[+] building mydashboard-%s-%s-%s with python %s\n" "$VERSION" "$RELEASE" "$DISTRIB" "$( "${python_bin}" --version)"
+
+"${python_bin}" setup.py -v bdist_rpm --release=$RELEASE --distribution-name=$DISTRIB --obsoletes=pynotif ${requires}
 
 mv dist/mydashboard-$VERSION-$RELEASE.noarch.rpm dist/mydashboard-$VERSION-$RELEASE-$DISTRIB.noarch.rpm
+

@@ -51,10 +51,9 @@ In unsafe way for example
 
 ![The web GUI](doc/mydashboard_run.png) "The web browser launched to access UI"
 
-## Everything's OK
-![remote ok](doc/mydashboard_remote_ok.png) "A valid remote access"
-
 ## Catch remote error
 ![remote ko](doc/mydashboard_remote_ko.png) "Remote error"
 
+## Backend stopped
+![remote ko](doc/mydashboard_backend_ko.png) "Backend stopped"
 

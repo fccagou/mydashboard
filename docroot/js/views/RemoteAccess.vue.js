@@ -1,14 +1,12 @@
 const RemoteAccessComponent = {
     template: `
-    <div id="remote">
-        <div class="d-flex flex-wrap gap-4 justify-content-evenly">
-            <site v-for="(domains, siteName, index) in sites" :key="siteName"
-                :name="siteName"
-                :domains="domains"
-                :lock="connectionInProgress"
-                @connection-request="executeConnection"
-                />
-        </div>
+    <div class="d-flex flex-wrap gap-4 justify-content-evenly">
+        <site v-for="(domains, siteName, index) in sites" :key="siteName"
+            :name="siteName"
+            :domains="domains"
+            :lock="connectionInProgress"
+            @connection-request="executeConnection"
+            />
     </div>`,
     data() {
         return {

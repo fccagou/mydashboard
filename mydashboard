@@ -198,6 +198,7 @@ class MyConfig:
         # Used to place JS development dependencies
         self.dev_mode = False
 
+
 config = MyConfig()
 
 # JS dependencies dict { prod: dev }
@@ -279,7 +280,7 @@ def static_page(start_response, document_root, filename, fullpath=False):
         output = open(real_file_path, "rb").read()
         ctype = mimetypes.guess_type(real_file_path)[0]
 
-        if config.dev_mode and filename in ( "index.html" ):
+        if config.dev_mode and filename in ("index.html"):
             output = replaceDependencies(filename, output)
     except:
         status = "500 INTERNAL ERROR"
@@ -328,7 +329,11 @@ def replaceDependencies(filename, file_content):
 
     content = file_content.decode("utf-8")
     for prod, dev in javascript_dependencies.items():
-        pattern = re.compile('<script src="{}" integrity=".*" crossorigin="anonymous"></script>'.format(prod))
+        pattern = re.compile(
+            '<script src="{}" integrity=".*" crossorigin="anonymous"></script>'.format(
+                prod
+            )
+        )
         content = re.sub(pattern, '<script src="{}"></script>'.format(dev), content)
 
     return content.encode("utf-8")
@@ -881,7 +886,9 @@ if __name__ == "__main__":
         help="Select web browser (default: %s)" % config.webbrowser,
     )
     parser.add_argument(
-        "--devmode", action="store_true", help="Use JS developpement dependencies (can only be used with the git repository)"
+        "--devmode",
+        action="store_true",
+        help="Use JS developpement dependencies (can only be used with the git repository)",
     )
 
     args = parser.parse_args()

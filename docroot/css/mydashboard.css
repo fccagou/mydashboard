@@ -3,7 +3,7 @@ html, body {
 }
 
 body {
-    background-color: var(--bs-gray-300);
+    background-color: var(--bs-gray-600);
 }
 
 .rounded-2xl {

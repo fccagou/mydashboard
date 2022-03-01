@@ -520,6 +520,22 @@ def launch_gui(config):
     return status
 
 
+def remote_list(start_response, environ, config):
+    """Sends remote hosts list
+
+    TODO:
+    -  Read remote list from json
+    -  apply filter red from api (environ)
+    -  add parameters from user config
+    -  send list
+    """
+    try:
+        data = json.loads(open(os.path.expanduser(config.remotelist_conf), "r").read())
+    except:
+        data = {"Error": {"Loading hosts list": {"rouge": []}}}
+    return jsonapi(start_response, data)
+
+
 def remote_connection(start_response, environ):
 
     # FIXME: catch split error
@@ -650,9 +666,7 @@ def application(environ, start_response):
         )
 
     elif environ["PATH_INFO"] == "/remote/list":
-        return static_page(
-            start_response, config.document_root, config.remotelist_conf, fullpath=True
-        )
+        return remote_list(start_response, environ, config)
 
     elif environ["PATH_INFO"][0:8] == "/remote/":
         return remote_connection(start_response, environ)

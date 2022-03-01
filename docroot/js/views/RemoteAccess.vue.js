@@ -39,6 +39,8 @@ const RemoteAccessComponent = {
                 delete response.data['version'];
                 delete response.data['defaults'];
                 delete response.data['hosts'];
+                // TODO: disply toast if errors
+                delete response.data['errors'];
                 this.sites = response.data;
             }).catch((error) => {
                 this.$store.commit('addToast', {

@@ -171,6 +171,9 @@ class MyConfig:
         # Default remote_list for demo
         self.remotelist_conf = "data/remote.json"
 
+        # Default user preférence file name for demo
+        self.user_prefs_filename = "data/user-preferences.json"
+
         # Default menu for demo
         self.menu_conf = "data/menu.json"
 
@@ -520,19 +523,62 @@ def launch_gui(config):
     return status
 
 
+def user_prefs(start_response, environ, config):
+    """Returns user preferences
+    if POST method is used, save new user prefs.
+    """
+
+    errors = {"errors": [], "warnings": []}
+    user_prefs_filename = os.path.expanduser(config.user_prefs_filename)
+
+    try:
+        data = json.loads(open(user_prefs_filename, "r").read())
+    except:
+        data = {}
+        errors["warnings"].append(
+            {"user preferences": "Error loading user preference file"}
+        )
+
+    if environ["REQUEST_METHOD"] == "POST":
+        try:
+            request_body_size = int(environ.get("CONTENT_LENGTH", 0))
+        except (ValueError):
+            request_body_size = 0
+        try:
+            sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))
+            # TODO:
+            # - check/validate input data
+            # - merge prefs before writing
+            try:
+                open(user_prefs_filename, "w", encoding="utf8").write(
+                    json.dumps(sent_prefs, indent=4, ensure_ascii=False)
+                )
+            except:
+                errors["errors"].append({"user preferences": "Can't write to file "})
+        except:
+            errors["errors"].append({"user preferences": "POST data are not valid"})
+
+    data["errors"] = errors
+    return jsonapi(start_response, data)
+
+
 def remote_list(start_response, environ, config):
     """Sends remote hosts list
 
     TODO:
     -  Read remote list from json
     -  apply filter red from api (environ)
-    -  add parameters from user config
-    -  send list
     """
+    errors = {}
+
     try:
         data = json.loads(open(os.path.expanduser(config.remotelist_conf), "r").read())
     except:
-        data = {"Error": {"Loading hosts list": {"rouge": []}}}
+        return jsonapi(start_response, {"Error": {"Loading hosts list": {"rouge": []}}})
+
+    # filter from api or externals data.
+
+    data["errors"] = errors
     return jsonapi(start_response, data)
 
 
@@ -671,6 +717,9 @@ def application(environ, start_response):
     elif environ["PATH_INFO"][0:8] == "/remote/":
         return remote_connection(start_response, environ)
 
+    elif environ["PATH_INFO"] == "/user/prefs":
+        return user_prefs(start_response, environ, config)
+
     else:
         # TODO: passer un message d'erreur
         True
@@ -741,6 +790,9 @@ def main(args, config):
         if "webbrowser" in conf:
             config.webbrowser = conf["webbrowser"]
 
+        if "user_prefs_filename" in conf:
+            config.user_prefs_filename = conf["user_prefs_filename"]
+
     # Get parameters from command line.
     if args.documentroot:
         config.document_root = args.documentroot
@@ -769,6 +821,12 @@ def main(args, config):
         config.webbrowser = args.webbrowser
     config.webbrowser = os.path.abspath(os.path.expanduser(config.webbrowser))
 
+    if args.userprefs:
+        config.user_prefs_filename = args.userprefs
+    config.user_prefs_filename = os.path.abspath(
+        os.path.expanduser(config.user_prefs_filename)
+    )
+
     if args.nogui:
         config.run_gui = False
 
@@ -787,6 +845,7 @@ def main(args, config):
         log("web browser              : %s" % config.webbrowser)
         log("document_root            : %s" % config.document_root)
         log("remotelist_conf          : %s" % config.remotelist_conf)
+        log("user_prefs_filename      : %s" % config.user_prefs_filename)
         log("remote_connection_script : %s" % config.remote_connection_script)
 
     if not config.use_token:
@@ -904,6 +963,7 @@ if __name__ == "__main__":
         action="store_true",
         help="Use JS developpement dependencies (can only be used with the git repository)",
     )
+    parser.add_argument("--userprefs", help="File used to store user preferences")
 
     args = parser.parse_args()
 

@@ -20,7 +20,7 @@ app.use(store);
 
 // Views
 app.component('remote-access', RemoteAccessComponent);
-app.component('customization', CustomizationComponent);
+app.component('user-preferences', UserPreferencesComponent);
 app.component('not-found', NotFoundComponent);
 
 // Components

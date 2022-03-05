@@ -5,9 +5,9 @@ const routes = [
         component: RemoteAccessComponent,
     },
     {
-        path: '/customization',
-        name: 'UserCustomization',
-        component: CustomizationComponent,
+        path: '/user/preferences',
+        name: 'UserPreferences',
+        component: UserPreferencesComponent,
     },
     {
         path: '/:pathMatch(.*)*',

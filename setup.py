@@ -75,7 +75,7 @@ setup(name='mydashboard',
             ('/etc/mydashboard/html/js/views', [
                 'docroot/js/bootstrap.bundle.js',
                 'docroot/js/views/RemoteAccess.vue.js',
-                'docroot/js/views/Customization.vue.js',
+                'docroot/js/views/UserPreferences.vue.js',
                 'docroot/js/views/NotFound.vue.js',
                 ]),
             ('/etc/mydashboard/html/js/components', [

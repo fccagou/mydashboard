@@ -57,7 +57,9 @@ setup(name='mydashboard',
                 ]),
             ('/etc/mydashboard/html/css', [
                 'docroot/css/bootstrap.min.css',
-                'docroot/css/all.css',
+                'docroot/css/bootstrap-icons.css',
+                'docroot/css/fonts/bootstrap-icons.woff',
+                'docroot/css/fonts/bootstrap-icons.woff2',
                 'docroot/css/mydashboard.css',
                 ]),
             ('/etc/mydashboard/html/js', [

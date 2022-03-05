@@ -656,6 +656,9 @@ def application(environ, start_response):
     # Static files
     static_files = [
         "/css/bootstrap.min.css",
+        "/css/bootstrap-icons.css",
+        "/css/fonts/bootstrap-icons.woff",
+        "/css/fonts/bootstrap-icons.woff2",
         "/js/bootstrap.bundle.js",
         "/img/computer.svg",
         "/img/favicon.ico",

@@ -78,3 +78,8 @@ body {
     background-color: #198754;
     color: #ffffff;
 }
+
+/** Settings **/
+.btn-settings {
+    background-color: #479f76;
+}

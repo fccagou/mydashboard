@@ -1,5 +1,5 @@
 const NotFoundComponent = {
-    template: `<div class="h-100 d-flex flex-column align-items-center justify-content-center">
+    template: `<div class="text-white fw-bolder h-100 d-flex flex-column align-items-center justify-content-center">
     <div class="ascii-art">
     &nbsp;___&nbsp;&nbsp;&nbsp;___&nbsp;&nbsp;&nbsp;________&nbsp;&nbsp;&nbsp;___&nbsp;&nbsp;&nbsp;___<br>
     |\\&nbsp;&nbsp;\\&nbsp;|\\&nbsp;&nbsp;\\&nbsp;|\\&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;\\&nbsp;|\\&nbsp;&nbsp;\\&nbsp;|\\&nbsp;&nbsp;\\<br>

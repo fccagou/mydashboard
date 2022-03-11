@@ -173,6 +173,7 @@ class MyConfig:
 
         # Default user preférence file name for demo
         self.user_prefs_filename = "data/user-preferences.json"
+        self._user_prefs = {}
 
         # Default menu for demo
         self.menu_conf = "data/menu.json"
@@ -200,6 +201,18 @@ class MyConfig:
 
         # Used to place JS development dependencies
         self.dev_mode = False
+
+    def load_user_prefs(self):
+        try:
+            self._user_prefs = json.loads(open(self.user_prefs_filename, "r").read())
+        except:
+            self._user_prefs = {"error": "Loading user preferences file"}
+
+    def save_user_prefs(self, data=None):
+        if data is not None:
+            open(self.user_prefs_filename, "w", encoding="utf8").write(
+                json.dumps(data, indent=4, ensure_ascii=False)
+            )
 
 
 config = MyConfig()
@@ -530,15 +543,6 @@ def user_prefs(start_response, environ, config):
     """
 
     errors = {"errors": [], "warnings": []}
-    user_prefs_filename = os.path.expanduser(config.user_prefs_filename)
-
-    try:
-        data = json.loads(open(user_prefs_filename, "r").read())
-    except:
-        data = {}
-        errors["warnings"].append(
-            {"user preferences": "Error loading user preference file"}
-        )
 
     if environ["REQUEST_METHOD"] == "POST":
         try:
@@ -551,13 +555,18 @@ def user_prefs(start_response, environ, config):
             # - check/validate input data
             # - merge prefs before writing
             try:
-                open(user_prefs_filename, "w", encoding="utf8").write(
-                    json.dumps(sent_prefs, indent=4, ensure_ascii=False)
-                )
+                config.save_user_prefs(sent_prefs)
             except:
                 errors["errors"].append({"user preferences": "Can't write to file "})
         except:
             errors["errors"].append({"user preferences": "POST data are not valid"})
+
+    config.load_user_prefs()
+    if "error" in config._user_prefs:
+        data = {}
+        errors["warnings"].append(config._user_prefs["error"])
+    else:
+        data = config._user_prefs
 
     data["errors"] = errors
     return jsonapi(start_response, data)

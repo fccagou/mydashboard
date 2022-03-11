@@ -214,6 +214,9 @@ class MyConfig:
                 json.dumps(data, indent=4, ensure_ascii=False)
             )
 
+    def get_remotes(self):
+        return json.loads(open(self.remotelist_conf, "r").read())
+
 
 config = MyConfig()
 
@@ -582,7 +585,7 @@ def remote_list(start_response, environ, config):
     errors = {}
 
     try:
-        data = json.loads(open(os.path.expanduser(config.remotelist_conf), "r").read())
+        data = config.get_remotes()
     except:
         return jsonapi(start_response, {"Error": {"Loading hosts list": {"rouge": []}}})
 

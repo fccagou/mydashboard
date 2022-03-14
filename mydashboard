@@ -150,6 +150,42 @@ class Token:
 # -----------------------------------------------------------------
 
 
+class Remotes:
+    def __init__(self, uri=None):
+        self.remote_uri = uri
+        self.remotes = {}
+        self.load()
+
+    def load(self):
+        if self.uri is not None:
+            self.remotes = json.loads(open(self.remote_uri, "r").read())
+
+    @property
+    def hosts(self):
+        return self.remotes["hosts"]
+
+    @property
+    def defaults(self):
+        return self.remotes["defaults"]
+
+    @property
+    def uri(self):
+        return self.remote_uri
+
+    @uri.setter
+    def uri(self, uri=None):
+        if self.remote_uri != uri:
+            self.remote_uri = uri
+            self.load()
+
+    def search(self, host_name=None):
+        # TODO; add filters
+        if host_name is None:
+            return self.hosts
+
+        return filter(lambda h: h["name"] == host_name, self.hosts)
+
+
 class MyConfig:
     def __init__(self):
 
@@ -169,7 +205,7 @@ class MyConfig:
         self.remote_connection_script = "data/remote_connection.sh"
 
         # Default remote_list for demo
-        self.remotelist_conf = "data/remote.json"
+        self.remotes = Remotes(uri="data/remote.json")
 
         # Default user preférence file name for demo
         self.user_prefs_filename = "data/user-preferences.json"
@@ -202,6 +238,14 @@ class MyConfig:
         # Used to place JS development dependencies
         self.dev_mode = False
 
+    @property
+    def remotelist_conf(self):
+        return self.remotes.uri
+
+    @remotelist_conf.setter
+    def remotelist_conf(self, uri=None):
+        self.remotes.uri = uri
+
     def load_user_prefs(self):
         try:
             self._user_prefs = json.loads(open(self.user_prefs_filename, "r").read())
@@ -214,8 +258,9 @@ class MyConfig:
                 json.dumps(data, indent=4, ensure_ascii=False)
             )
 
-    def get_remotes(self):
-        return json.loads(open(self.remotelist_conf, "r").read())
+    def get_remotes(self, name=None):
+        self.remotes.load()
+        return {"hosts": list(self.remotes.search(host_name=name))}
 
 
 config = MyConfig()

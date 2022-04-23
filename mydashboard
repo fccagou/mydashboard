@@ -770,7 +770,11 @@ def application(environ, start_response):
 
     elif environ["PATH_INFO"] == "/conf/menu":
         return static_page(
-            start_response, config.document_root, config.menu_conf, fullpath=True
+            start_response,
+            config.document_root,
+            config.menu_conf,
+            fullpath=True,
+            ctype="application/json; charset=UTF-8",
         )
 
     elif environ["PATH_INFO"] == "/remote/list":

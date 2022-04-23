@@ -330,7 +330,7 @@ def page(start_response, output, ctype="text/plain", status="200 OK"):
     return [output]
 
 
-def static_page(start_response, document_root, filename, fullpath=False):
+def static_page(start_response, document_root, filename, fullpath=False, ctype=None):
     """
     Used to send data get from filename if presents in document_root path.
     """
@@ -342,7 +342,8 @@ def static_page(start_response, document_root, filename, fullpath=False):
         else:
             real_file_path = os.path.join(document_root, filename)
         output = open(real_file_path, "rb").read()
-        ctype = mimetypes.guess_type(real_file_path)[0]
+        if ctype is None:
+            ctype = mimetypes.guess_type(real_file_path)[0]
 
         if config.dev_mode and filename in ("index.html"):
             output = replaceDependencies(filename, output)

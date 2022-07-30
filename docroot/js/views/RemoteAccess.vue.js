@@ -1,9 +1,10 @@
 const RemoteAccessComponent = {
     template: `
     <div class="d-flex flex-wrap gap-4 justify-content-evenly">
-        <site v-for="(site, index) in sites" :key="site.name"
+        <site v-for="(site, index) in sites_ordered" :key="site.name"
             :name="site.name"
             :domains="site.domains"
+            :ordering="ordering[site.name]"
             :lock="connectionInProgress"
             @connection-request="executeConnection"
             />
@@ -12,6 +13,7 @@ const RemoteAccessComponent = {
         return {
             hosts: [],
             sites: [],
+            ordering: {},
             connectionInProgress: false,
             interval: null,
         }
@@ -32,6 +34,7 @@ const RemoteAccessComponent = {
         loadData() {
             axios.get('/remote/list').then((response) => {
                 this.hosts = response.data.hosts;
+                this.ordering = response.data.ordering;
 
                 // generate site -> domain -> group structure
                 this.sites = [];
@@ -123,4 +126,15 @@ const RemoteAccessComponent = {
             })
         }
     },
+    computed: {
+        sites_ordered: function () {
+            return this.sites.sort((a, b) => {
+                if (this.ordering.hasOwnProperty(a.name) && this.ordering.hasOwnProperty(b.name)) {
+                    return this.ordering[a.name].order > this.ordering[b.name].order;
+                } else {
+                    return 0;
+                }
+            });
+        }
+    }
 };

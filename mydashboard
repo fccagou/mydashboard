@@ -176,6 +176,18 @@ class Remotes:
     def uri(self):
         return self.remote_uri
 
+    @property
+    def get_formatting_order(self):
+        sites_configuration = self.defaults_configuration_by_site
+        ordering = {}
+        for site_name in sites_configuration:
+            if "order" in sites_configuration[site_name]:
+                ordering[site_name] = { "order": sites_configuration[site_name]["order"], "domains": {} }
+                for domain_name in sites_configuration[site_name]["domains"]:
+                    if "order" in sites_configuration[site_name]["domains"][domain_name]:
+                        ordering[site_name]["domains"][domain_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["order"] }
+        return ordering
+
     @uri.setter
     def uri(self, uri=None):
         if self.remote_uri != uri:
@@ -295,7 +307,10 @@ class MyConfig:
 
     def get_remotes(self, name=None):
         self.remotes.load()
-        return {"hosts": list(self.remotes.search(host_name=name))}
+        return {
+            "hosts": list(self.remotes.search(host_name=name)),
+            "ordering": self.remotes.get_formatting_order
+        }
 
 
 config = MyConfig()

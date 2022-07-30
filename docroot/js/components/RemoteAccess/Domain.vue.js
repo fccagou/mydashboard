@@ -9,34 +9,16 @@ const DomainComponent = {
     <div class="d-flex flex-column align-items-center">
         <p>{{ name }}</p>
         <div class="btn-group-vertical shadow-lg">
-            <template v-for="(hosts, groupName) in formattedGroups">
-                <host v-for="(param, hostName) in hosts"
-                    :key="name + '-' + hostName"
-                    :hostname="hostName"
-                    :group="groupName"
-                    :specific_parameters="param"
+            <template v-for="group in groups">
+                <host v-for="host in group.hosts"
+                    :key="name + '-' + host.name"
+                    :host="host"
+                    :groupName="group.name"
                     :lock="lock"
                     @connection-request="forwardConnectionRequest"/>
             </template>
         </div>
     </div>`,
-    computed: {
-        formattedGroups: function () {
-            let newGroups = {};
-            for (let groupName in this.groups) {
-                let hosts = this.groups[groupName];
-                newGroups[groupName] = {};
-                if (Array.isArray(hosts)) {
-                    // Convert Array to object like { host: {} }
-                    hosts.forEach((host) => newGroups[groupName][host] = {})
-                } else {
-                    // If already a object juste assign to group
-                    newGroups[groupName] = hosts;
-                }
-            };
-            return newGroups;
-        }
-    },
     methods: {
         forwardConnectionRequest(connection) {
             connection['domain'] = this.name;

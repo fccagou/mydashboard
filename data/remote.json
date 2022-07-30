@@ -1,73 +1,244 @@
 {
   "version": "0.1.1",
   "defaults": {
-    "rdp": { "sec": "nla" },
-    "ssh": { "port": 22 }
+    "rdp": {
+      "sec": "nla"
+    },
+    "ssh": {
+      "port": 22
+    }
   },
   "hosts": [
     {
-      "name": "rdp01",
+      "name": "TS-01",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "rouge"
+      }
+    },
+    {
+      "name": "TS-11",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "jaune"
+      }
+    },
+    {
+      "name": "TS-21",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "vert"
+      }
+    },
+    {
+      "name": "TS-31",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "blanc"
+      }
+    },
+    {
+      "name": "TS-41",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "marron"
+      }
+    },
+    {
+      "name": "TS-51",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN2",
+        "group": "gris"
+      }
+    },
+    {
+      "name": "TS-21",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN3",
+        "group": "vert"
+      }
+    },
+    {
+      "name": "TS-32",
+      "config": {
+        "proto": "rdp",
+        "site": "VANUATU",
+        "domain": "DOMAIN3",
+        "group": "blanc"
+      }
+    },
+    {
+      "name": "ssh-lagoon",
+      "config": {
+        "proto": "ssh",
+        "site": "VANUATU",
+        "domain": "DOMAIN3",
+        "group": "bleu"
+      }
+    },
+    {
+      "name": "iririki",
+      "config": {
+        "proto": "ssh",
+        "site": "VANUATU",
+        "domain": "DOMAIN3",
+        "group": "bleu"
+      }
+    },
+    {
+      "name": "rdp",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "rouge"
+      }
+    },
+    {
+      "name": "rdp-nla",
       "config": {
         "proto": "rdp",
         "rdp": {
           "sec": "nla"
         },
-        "site": "vu",
-        "domain": "vanuatu.net",
-        "group": "1"
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "rouge"
       }
     },
     {
-      "name": "rdp02",
+      "name": "rdp-tls",
       "config": {
         "proto": "rdp",
         "rdp": {
-          "sec": "toto"
-        }
+          "sec": "tls"
+        },
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "rouge"
       }
     },
     {
-      "name": "ssh01",
+      "name": "TS-11",
       "config": {
-        "proto": "ssh"
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "jaune"
+      }
+    },
+    {
+      "name": "TS-12",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "jaune"
+      }
+    },
+    {
+      "name": "TS-21",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "vert"
+      }
+    },
+    {
+      "name": "TS-22",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "vert"
+      }
+    },
+    {
+      "name": "TS-31",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "blanc"
+      }
+    },
+    {
+      "name": "TS-32",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN1",
+        "group": "blanc"
+      }
+    },
+    {
+      "name": "TS-01",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "rouge"
+      }
+    },
+    {
+      "name": "TS-12",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "jaune"
+      }
+    },
+    {
+      "name": "TS-21",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "vert"
+      }
+    },
+    {
+      "name": "TS-32",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "blanc"
+      }
+    },
+    {
+      "name": "admin-srv01",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "nocolor"
+      }
+    },
+    {
+      "name": "admin-srv02",
+      "config": {
+        "proto": "rdp",
+        "site": "FRANCE",
+        "domain": "DOMAIN2",
+        "group": "nocolor"
       }
     }
-  ],
-  "FRANCE": {
-    "DOMAIN1": {
-      "rouge": {
-        "rdp": { "proto": "rdp" },
-        "rdp-nla": { "proto": "rdp", "sec": "nla" },
-        "rdp-tls": { "proto": "rdp", "sec": "tls" }
-      },
-      "jaune": ["TS-11", "TS-12"],
-      "vert": ["TS-21", "TS-22"],
-      "blanc": ["TS-31", "TS-32"]
-    },
-    "DOMAIN2": {
-      "rouge": ["TS-01"],
-      "jaune": ["TS-12"],
-      "vert": ["TS-21"],
-      "blanc": ["TS-32"],
-      "nocolor": ["admin-srv01", "admin-srv02"]
-    }
-  },
-  "VANUATU": {
-    "DOMAIN2": {
-      "rouge": ["TS-01"],
-      "jaune": ["TS-11"],
-      "vert": ["TS-21"],
-      "blanc": ["TS-31"],
-      "marron": ["TS-41"],
-      "gris": ["TS-51"]
-    },
-    "DOMAIN3": {
-      "vert": ["TS-21"],
-      "blanc": ["TS-32"],
-      "bleu": {
-        "ssh-lagoon": { "proto": "ssh" },
-        "iririki": {}
-      }
-    }
-  }
+  ]
 }

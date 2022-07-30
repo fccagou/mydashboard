@@ -11,8 +11,8 @@ const SiteComponent = {
             <img class="site-icon" src="/img/computer.svg" /> <span class="font-bold">{{ name }}</span>
         </div>
         <div class="px-5 py-3 d-flex flex-wrap gap-5 justify-content-evenly">
-            <domain v-for="(groups, domainName) in domains" :key="name + '-' + domainName"
-                :name="domainName" :groups="groups" :lock="lock"
+            <domain v-for="domain in domains" :key="name + '-' + domain.name"
+                :name="domain.name" :groups="domain.groups" :lock="lock"
                 @connection-request="forwardConnectionRequest"
                 />
         </div>

@@ -1,8 +1,7 @@
 const HostComponent = {
     props: [
-        'group',
-        'hostname',
-        'specific_parameters',
+        'groupName',
+        'host',
         'lock',
     ],
     emits: ['connection-request'],
@@ -15,7 +14,7 @@ const HostComponent = {
         <template v-if="loading">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         </template>
-        {{ hostname }}
+        {{ host.name }}
     </button>`,
     data() {
         return {
@@ -26,7 +25,7 @@ const HostComponent = {
         }
     },
     beforeMount() {
-        this.classObject['group-' + this.group] = true;
+        this.classObject['group-' + this.groupName] = true;
     },
     methods: {
         handleRequestConnection() {
@@ -35,8 +34,11 @@ const HostComponent = {
             }
             this.$emit('connection-request', {
                 group: this.group,
-                hostname: this.hostname,
-                specific_parameters: this.specific_parameters,
+                hostname: this.host.name,
+                specific_parameters: {
+                    'proto': this.host.config.proto,
+                    ...this.host.config[this.host.config.proto]
+                },
                 host_data_ref: this.$data
             });
         }

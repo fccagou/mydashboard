@@ -1,17 +1,15 @@
 const RemoteAccessComponent = {
     template: `
     <div class="d-flex flex-wrap gap-4 justify-content-evenly">
-        <site v-for="(domains, siteName, index) in sites" :key="siteName"
-            :name="siteName"
-            :domains="domains"
+        <site v-for="(site, index) in sites" :key="site.name"
+            :name="site.name"
+            :domains="site.domains"
             :lock="connectionInProgress"
             @connection-request="executeConnection"
             />
     </div>`,
     data() {
         return {
-            version: undefined,
-            defaults: {},
             hosts: [],
             sites: [],
             connectionInProgress: false,
@@ -33,15 +31,33 @@ const RemoteAccessComponent = {
     methods: {
         loadData() {
             axios.get('/remote/list').then((response) => {
-                this.version = response.data.version;
-                this.defaults = response.data.defaults;
                 this.hosts = response.data.hosts;
-                delete response.data['version'];
-                delete response.data['defaults'];
-                delete response.data['hosts'];
+
+                // generate site -> domain -> group structure
+                this.sites = [];
+                for (const host of this.hosts) {
+                    if (!('site' in host.config && 'domain' in host.config && 'group' in host.config)) {
+                        continue;
+                    }
+                    let site = this.sites.find(e => e.name === host.config.site);
+                    if (!site) {
+                        site = { 'name': host.config.site, 'domains': [] };
+                        this.sites.push(site);
+                    }
+                    let domain = site.domains.find(e => e.name === host.config.domain);
+                    if (!domain) {
+                        domain = { 'name': host.config.domain, 'groups': []};
+                        site.domains.push(domain);
+                    }
+                    let group = domain.groups.find(e => e.name === host.config.group);
+                    if (!group) {
+                        group = { 'name': host.config.group , 'hosts': []};
+                        domain.groups.push(group);
+                    }
+                    group.hosts.push(host);
+                }
+
                 // TODO: disply toast if errors
-                delete response.data['errors'];
-                this.sites = response.data;
             }).catch((error) => {
                 this.$store.commit('addToast', {
                     type: 'warning',

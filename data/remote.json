@@ -10,6 +10,7 @@
   },
   "hosts": [
     {
+      "uuid": "c6ff201e-10c7-44ff-bba2-10db62542505",
       "name": "TS-01",
       "config": {
         "proto": "rdp",
@@ -19,6 +20,7 @@
       }
     },
     {
+      "uuid": "a992b672-b8da-4fd3-9a07-e87f6e4f57b8",
       "name": "TS-11",
       "config": {
         "proto": "rdp",
@@ -28,6 +30,7 @@
       }
     },
     {
+      "uuid": "550da22b-0ee6-4236-b91f-f049a2fb8212",
       "name": "TS-21",
       "config": {
         "proto": "rdp",
@@ -37,6 +40,7 @@
       }
     },
     {
+      "uuid": "b83ddb67-3b31-4642-a6a0-6e7c3eebde96",
       "name": "TS-31",
       "config": {
         "proto": "rdp",
@@ -46,6 +50,7 @@
       }
     },
     {
+      "uuid": "a835b488-72b7-4a4d-9686-8f16491ac3b7",
       "name": "TS-41",
       "config": {
         "proto": "rdp",
@@ -55,6 +60,7 @@
       }
     },
     {
+      "uuid": "29f9892c-e48c-4fa9-83df-9bf1d95e5f7d",
       "name": "TS-51",
       "config": {
         "proto": "rdp",
@@ -64,6 +70,7 @@
       }
     },
     {
+      "uuid": "9f0d6122-b7b5-4a9a-989a-f9d3ff530778",
       "name": "TS-21",
       "config": {
         "proto": "rdp",
@@ -73,6 +80,7 @@
       }
     },
     {
+      "uuid": "30ae5de5-bc0b-45f2-bcb3-92021b657a77",
       "name": "TS-32",
       "config": {
         "proto": "rdp",
@@ -82,6 +90,7 @@
       }
     },
     {
+      "uuid": "190f4768-1445-4ae8-b5b5-c78c9c2f1cf1",
       "name": "ssh-lagoon",
       "config": {
         "proto": "ssh",
@@ -91,6 +100,7 @@
       }
     },
     {
+      "uuid": "0836c95a-281b-4055-818b-a398e7fd13bd",
       "name": "iririki",
       "config": {
         "proto": "ssh",
@@ -100,6 +110,7 @@
       }
     },
     {
+      "uuid": "80fb2358-921f-4e59-bd8d-00372abe7e96",
       "name": "rdp",
       "config": {
         "proto": "rdp",
@@ -109,6 +120,7 @@
       }
     },
     {
+      "uuid": "94bd0356-3103-468d-8285-a5ada2c8cd57",
       "name": "rdp-nla",
       "config": {
         "proto": "rdp",
@@ -121,6 +133,7 @@
       }
     },
     {
+      "uuid": "60ee3d6e-bf93-48a4-9d0b-d81f2be1100c",
       "name": "rdp-tls",
       "config": {
         "proto": "rdp",
@@ -133,6 +146,7 @@
       }
     },
     {
+      "uuid": "017cc067-0439-4903-88cb-f919450076ee",
       "name": "TS-11",
       "config": {
         "proto": "rdp",
@@ -142,6 +156,7 @@
       }
     },
     {
+      "uuid": "51073777-103e-4142-8a1d-adea360899bb",
       "name": "TS-12",
       "config": {
         "proto": "rdp",
@@ -151,6 +166,7 @@
       }
     },
     {
+      "uuid": "ecc92f67-cce7-49d6-8254-d7e60cb502a0",
       "name": "TS-21",
       "config": {
         "proto": "rdp",
@@ -160,6 +176,7 @@
       }
     },
     {
+      "uuid": "118ab5db-ca36-4a0d-b4ce-df49d119667a",
       "name": "TS-22",
       "config": {
         "proto": "rdp",
@@ -169,6 +186,7 @@
       }
     },
     {
+      "uuid": "95da2652-0eda-48cb-945f-2838f88136ad",
       "name": "TS-31",
       "config": {
         "proto": "rdp",
@@ -178,6 +196,7 @@
       }
     },
     {
+      "uuid": "7c6b21da-8dc5-4cc3-97bb-831b2cc50ee4",
       "name": "TS-32",
       "config": {
         "proto": "rdp",
@@ -187,6 +206,7 @@
       }
     },
     {
+      "uuid": "ae82b720-e8f2-4613-b066-978748d9ac4e",
       "name": "TS-01",
       "config": {
         "proto": "rdp",
@@ -196,6 +216,7 @@
       }
     },
     {
+      "uuid": "0c9b491b-5a1b-4c6b-aa68-28f60f3345f0",
       "name": "TS-12",
       "config": {
         "proto": "rdp",
@@ -205,6 +226,7 @@
       }
     },
     {
+      "uuid": "cb9a2df1-6612-43bc-8ce6-1eeef6c65aae",
       "name": "TS-21",
       "config": {
         "proto": "rdp",
@@ -214,6 +236,7 @@
       }
     },
     {
+      "uuid": "3b63cbc6-7f38-420f-a18f-05691de12bd1",
       "name": "TS-32",
       "config": {
         "proto": "rdp",
@@ -223,6 +246,7 @@
       }
     },
     {
+      "uuid": "c2c646d9-f4e5-41c6-a019-320f5ad148a1",
       "name": "admin-srv01",
       "config": {
         "proto": "rdp",
@@ -232,6 +256,7 @@
       }
     },
     {
+      "uuid": "3c14d8d8-f232-4867-b67a-8a7ff7c9f6a0",
       "name": "admin-srv02",
       "config": {
         "proto": "rdp",

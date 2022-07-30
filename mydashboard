@@ -165,8 +165,12 @@ class Remotes:
         return self.remotes["hosts"]
 
     @property
-    def defaults(self):
-        return self.remotes["defaults"]
+    def defaults_configuration_by_protocol(self):
+        return self.remotes["configuration"]["default_config_by_protocol"]
+
+    @property
+    def defaults_configuration_by_site(self):
+        return self.remotes["configuration"]["sites"]
 
     @property
     def uri(self):
@@ -190,6 +194,32 @@ class Remotes:
             return next(h for h in self.hosts if h["uuid"] == uuid)
         except StopIteration:
             return None
+
+    def get_configuration_protcol(self, uuid):
+        host = self.find_by_uuid(uuid)
+        if host is None:
+            return {}
+        site = host["config"]["site"]
+        domain = host["config"]["domain"]
+        protocol = host["config"]["proto"]
+
+        config = {}
+        # Merge default configuration
+        config_default = self.defaults_configuration_by_protocol
+        if protocol in config_default:
+            config = config | config_default[protocol]
+        # Merge site configuration
+        config_sites = self.defaults_configuration_by_site
+        if site in config_sites and protocol in config_sites[site]["config_by_protocol"]:
+            config = config | config_sites[site]["config_by_protocol"][protocol]
+            # Merge domain configuration
+            if domain in config_sites[site]["domains"] and protocol in config_sites[site]["domains"]["config_by_protocol"]:
+                config = config | config_sites[site]["domains"]["config_by_protocol"][protocol]
+        # Merge host configuration
+        if protocol in host["config"]:
+            config = config | host["config"][protocol]
+
+        return config
 
 class MyConfig:
     def __init__(self):
@@ -648,13 +678,10 @@ def remote_list(start_response, environ, config):
 
 def remote_connection(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][16:]
+    host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
         # TODO: send error uuid not found
         raise NotImplemented
-
-    else:
-        proto = ""
-        sec = ""
 
     remote_host = host["name"]
     site = host["config"]["site"]
@@ -662,6 +689,12 @@ def remote_connection(start_response, environ, config):
     group = host["config"]["group"]
     proto = host["config"]["proto"]
 
+    # Get merged configuration for this host
+    connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
+    if "sec" in connection_configuration:
+        sec = connection_configuration["sec"]
+    else:
+        sec = ""
 
     exec_status = {}
     exec_status["cmd"] = "%s '%s' '%s' '%s' '%s' '%s' '%s'" % (

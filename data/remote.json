@@ -1,11 +1,29 @@
 {
-  "version": "0.1.1",
-  "defaults": {
-    "rdp": {
-      "sec": "nla"
+  "configuration": {
+    "default_config_by_protocol": {
+      "rdp": {
+        "sec": "nla"
+      },
+      "ssh": {
+        "port": 22
+      }
     },
-    "ssh": {
-      "port": 22
+    "sites": {
+      "FRANCE": {
+        "config_by_protocol": {
+          "rdp": {
+            "sec": "tls"
+          }
+        },
+        "domains": {
+          "name": "DOMAIN1",
+          "config_by_protocol": {
+            "rdp": {
+              "sec": "nla"
+            }
+          }
+        }
+      }
     }
   },
   "hosts": [

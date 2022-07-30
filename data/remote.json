@@ -30,6 +30,7 @@
     {
       "uuid": "c6ff201e-10c7-44ff-bba2-10db62542505",
       "name": "TS-01",
+      "alias": "My TS",
       "config": {
         "proto": "rdp",
         "site": "VANUATU",

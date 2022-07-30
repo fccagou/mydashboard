@@ -14,7 +14,7 @@ const HostComponent = {
         <template v-if="loading">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         </template>
-        {{ host.name }}
+        {{ hostname }}
     </button>`,
     data() {
         return {
@@ -34,7 +34,7 @@ const HostComponent = {
             }
             this.$emit('connection-request', {
                 host_uuid: this.host.uuid,
-                hostname: this.host.name,
+                hostname: this.hostname,
                 host_data_ref: this.$data
             });
         }
@@ -42,6 +42,12 @@ const HostComponent = {
     computed: {
         disableButton: function () {
             return !this.loading && this.lock;
+        },
+        hostname: function () {
+            if (this.host.hasOwnProperty("alias")) {
+                return this.host.alias;
+            }
+            return this.host.name;
         }
     },
     watch: {

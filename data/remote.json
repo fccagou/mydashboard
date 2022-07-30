@@ -16,10 +16,11 @@
           }
         },
         "domains": {
-          "name": "DOMAIN1",
-          "config_by_protocol": {
-            "rdp": {
-              "sec": "nla"
+          "DOMAIN1": {
+            "config_by_protocol": {
+              "rdp": {
+                "sec": "nla"
+              }
             }
           }
         }

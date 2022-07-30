@@ -213,8 +213,8 @@ class Remotes:
         if site in config_sites and protocol in config_sites[site]["config_by_protocol"]:
             config = config | config_sites[site]["config_by_protocol"][protocol]
             # Merge domain configuration
-            if domain in config_sites[site]["domains"] and protocol in config_sites[site]["domains"]["config_by_protocol"]:
-                config = config | config_sites[site]["domains"]["config_by_protocol"][protocol]
+            if domain in config_sites[site]["domains"] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
+                config = config | config_sites[site]["domains"][domain]["config_by_protocol"][protocol]
         # Merge host configuration
         if protocol in host["config"]:
             config = config | host["config"][protocol]

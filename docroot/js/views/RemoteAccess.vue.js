@@ -79,9 +79,7 @@ const RemoteAccessComponent = {
             }
             this.connectionInProgress = true;
             connection.host_data_ref.loading = true;
-            axios.get(`/remote/${connection.site}/${connection.domain}/${connection.group}/${connection.hostname}`, {
-                params: connection.specific_parameters,
-            }).then((response) => {
+            axios.get(`/remote/connect/${connection.host_uuid}`).then((response) => {
                 if (response.data.status !== 0) {
                     this.$store.commit('addToast', {
                         type: 'danger',

@@ -33,12 +33,8 @@ const HostComponent = {
                 return;
             }
             this.$emit('connection-request', {
-                group: this.group,
+                host_uuid: this.host.uuid,
                 hostname: this.host.name,
-                specific_parameters: {
-                    'proto': this.host.config.proto,
-                    ...this.host.config[this.host.config.proto]
-                },
                 host_data_ref: this.$data
             });
         }

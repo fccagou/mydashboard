@@ -185,6 +185,11 @@ class Remotes:
 
         return filter(lambda h: h["name"] == host_name, self.hosts)
 
+    def find_by_uuid(self, uuid):
+        try:
+            return next(h for h in self.hosts if h["uuid"] == uuid)
+        except StopIteration:
+            return None
 
 class MyConfig:
     def __init__(self):
@@ -641,20 +646,22 @@ def remote_list(start_response, environ, config):
     return jsonapi(start_response, data)
 
 
-def remote_connection(start_response, environ):
+def remote_connection(start_response, environ, config):
+    host_uuid = environ["PATH_INFO"][16:]
+    if host is None:
+        # TODO: send error uuid not found
+        raise NotImplemented
 
-    # FIXME: catch split error
-    (site, domain, group, remote_host) = environ["PATH_INFO"][8:].split("/")
-    opts = parse_qs(environ["QUERY_STRING"])
-    if "proto" in opts:
-        proto = opts["proto"][0]
-        if "sec" in opts:
-            sec = opts["sec"][0]
-        else:
-            sec = "nla"
     else:
         proto = ""
         sec = ""
+
+    remote_host = host["name"]
+    site = host["config"]["site"]
+    domain = host["config"]["domain"]
+    group = host["config"]["group"]
+    proto = host["config"]["proto"]
+
 
     exec_status = {}
     exec_status["cmd"] = "%s '%s' '%s' '%s' '%s' '%s' '%s'" % (
@@ -780,8 +787,8 @@ def application(environ, start_response):
     elif environ["PATH_INFO"] == "/remote/list":
         return remote_list(start_response, environ, config)
 
-    elif environ["PATH_INFO"][0:8] == "/remote/":
-        return remote_connection(start_response, environ)
+    elif environ["PATH_INFO"][0:16] == "/remote/connect/":
+        return remote_connection(start_response, environ, config)
 
     elif environ["PATH_INFO"] == "/user/prefs":
         return user_prefs(start_response, environ, config)

@@ -27,8 +27,10 @@ const SiteComponent = {
     computed: {
         domains_ordered: function () {
             return this.domains.sort((a, b) => {
-                if (this.ordering["domains"].hasOwnProperty(a.name) && this.ordering["domains"].hasOwnProperty(b.name)) {
-                    return this.ordering["domains"][a.name].order > this.ordering["domains"][b.name].order;
+                if (this.ordering.hasOwnProperty("domains")) {
+                    const order_a = this.ordering["domains"].hasOwnProperty(a.name) ? this.ordering["domains"][a.name].order : 0;
+                    const order_b = this.ordering["domains"].hasOwnProperty(b.name) ? this.ordering["domains"][b.name].order : 0;
+                    return order_a > order_b;
                 } else {
                     return 0;
                 }

@@ -10,7 +10,7 @@
     },
     "sites": {
       "FRANCE": {
-        "order": 1,
+        "order": -1,
         "config_by_protocol": {
           "rdp": {
             "sec": "tls"
@@ -18,23 +18,14 @@
         },
         "domains": {
           "DOMAIN1": {
-            "order": 2,
+            "order": 1,
             "config_by_protocol": {
               "rdp": {
                 "sec": "nla"
               }
             }
-          },
-          "DOMAIN2": {
-            "order": 1,
-            "config_by_protocol": {}
           }
         }
-      },
-      "VANUATU": {
-        "order": 2,
-        "config_by_protocol": {},
-        "domains": {}
       }
     }
   },

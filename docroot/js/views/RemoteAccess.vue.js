@@ -4,7 +4,7 @@ const RemoteAccessComponent = {
         <site v-for="(site, index) in sites_ordered" :key="site.name"
             :name="site.name"
             :domains="site.domains"
-            :ordering="ordering[site.name]"
+            :ordering="domains_ordering(site.name)"
             :lock="connectionInProgress"
             @connection-request="executeConnection"
             />
@@ -49,12 +49,12 @@ const RemoteAccessComponent = {
                     }
                     let domain = site.domains.find(e => e.name === host.config.domain);
                     if (!domain) {
-                        domain = { 'name': host.config.domain, 'groups': []};
+                        domain = { 'name': host.config.domain, 'groups': [] };
                         site.domains.push(domain);
                     }
                     let group = domain.groups.find(e => e.name === host.config.group);
                     if (!group) {
-                        group = { 'name': host.config.group , 'hosts': []};
+                        group = { 'name': host.config.group, 'hosts': [] };
                         domain.groups.push(group);
                     }
                     group.hosts.push(host);
@@ -124,16 +124,17 @@ const RemoteAccessComponent = {
                 this.connectionInProgress = false;
                 connection.host_data_ref.loading = false;
             })
+        },
+        domains_ordering: function (site_name) {
+            return this.ordering.hasOwnProperty(site_name) ? this.ordering[site_name] : {};
         }
     },
     computed: {
         sites_ordered: function () {
             return this.sites.sort((a, b) => {
-                if (this.ordering.hasOwnProperty(a.name) && this.ordering.hasOwnProperty(b.name)) {
-                    return this.ordering[a.name].order > this.ordering[b.name].order;
-                } else {
-                    return 0;
-                }
+                const order_a = this.ordering.hasOwnProperty(a.name) ? this.ordering[a.name].order : 0;
+                const order_b = this.ordering.hasOwnProperty(b.name) ? this.ordering[b.name].order : 0;
+                return order_a > order_b;
             });
         }
     }

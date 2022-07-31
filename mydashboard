@@ -226,13 +226,13 @@ class Remotes:
             config = config | config_default[protocol]
         # Merge site configuration
         config_sites = self.defaults_configuration_by_site
-        if site in config_sites and protocol in config_sites[site]["config_by_protocol"]:
+        if site in config_sites and "config_by_protocol" in config_sites[site] and protocol in config_sites[site]["config_by_protocol"]:
             config = config | config_sites[site]["config_by_protocol"][protocol]
             # Merge domain configuration
-            if domain in config_sites[site]["domains"] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
+            if domain in config_sites[site]["domains"] and "config_by_protocol" in config_sites[site]["domains"][domain] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
                 config = config | config_sites[site]["domains"][domain]["config_by_protocol"][protocol]
                 # Merge group configuration
-                if group in config_sites[site]["domains"][domain]["groups"] and protocol in config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"]:
+                if group in config_sites[site]["domains"][domain]["groups"] and "config_by_protocol" in config_sites[site]["domains"][domain]["groups"][group] and protocol in config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"]:
                     config = config | config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"][protocol]
         # Merge host configuration
         if protocol in host["config"]:

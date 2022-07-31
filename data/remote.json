@@ -23,6 +23,12 @@
               "rdp": {
                 "sec": "nla"
               }
+            },
+            "groups": {
+              "vert": {
+                "order": -1,
+                "config_by_protocol": {}
+              }
             }
           }
         }

@@ -13,7 +13,7 @@ const SiteComponent = {
         </div>
         <div class="px-5 py-3 d-flex flex-wrap gap-5 justify-content-evenly">
             <domain v-for="domain in domains_ordered" :key="name + '-' + domain.name"
-                :name="domain.name" :groups="domain.groups" :lock="lock"
+                :name="domain.name" :groups="domain.groups" :lock="lock" :ordering="domains_ordering(domain.name)"
                 @connection-request="forwardConnectionRequest"
                 />
         </div>
@@ -22,6 +22,12 @@ const SiteComponent = {
         forwardConnectionRequest(connection) {
             connection['site'] = this.name;
             this.$emit('connection-request', connection);
+        },
+        domains_ordering(domain_name) {
+            if (!this.ordering.hasOwnProperty("domains")) {
+                return {}
+            }
+            return this.ordering["domains"].hasOwnProperty(domain_name) ? this.ordering["domains"][domain_name] : {};
         }
     },
     computed: {

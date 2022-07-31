@@ -185,7 +185,10 @@ class Remotes:
                 ordering[site_name] = { "order": sites_configuration[site_name]["order"], "domains": {} }
                 for domain_name in sites_configuration[site_name]["domains"]:
                     if "order" in sites_configuration[site_name]["domains"][domain_name]:
-                        ordering[site_name]["domains"][domain_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["order"] }
+                        ordering[site_name]["domains"][domain_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["order"], "groups": {} }
+                        for group_name in sites_configuration[site_name]["domains"][domain_name]["groups"]:
+                            if "order" in sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]:
+                                ordering[site_name]["domains"][domain_name]["groups"][group_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]["order"] }
         return ordering
 
     @uri.setter

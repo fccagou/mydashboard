@@ -216,6 +216,7 @@ class Remotes:
             return {}
         site = host["config"]["site"]
         domain = host["config"]["domain"]
+        group = host["config"]["group"]
         protocol = host["config"]["proto"]
 
         config = {}
@@ -230,6 +231,9 @@ class Remotes:
             # Merge domain configuration
             if domain in config_sites[site]["domains"] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
                 config = config | config_sites[site]["domains"][domain]["config_by_protocol"][protocol]
+                # Merge group configuration
+                if group in config_sites[site]["domains"][domain]["groups"] and protocol in config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"]:
+                    config = config | config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"][protocol]
         # Merge host configuration
         if protocol in host["config"]:
             config = config | host["config"][protocol]

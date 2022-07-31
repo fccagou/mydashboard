@@ -747,6 +747,23 @@ def remote_connection(start_response, environ, config):
     exec_status["msg"] = status[2]
     return jsonapi(start_response, exec_status)
 
+def remote_information(start_response, environ, config):
+    host_uuid = environ["PATH_INFO"][13:]
+    host = config.remotes.find_by_uuid(host_uuid)
+    if host is None:
+        # TODO: send error uuid not found
+        raise NotImplemented
+
+    # Get merged configuration for this host
+    connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
+
+    # Delete config entry
+    if host["config"]["proto"] in host:
+        del host["config"][host["config"]["proto"]]
+
+    host["config"][host["config"]["proto"]] = connection_configuration
+
+    return jsonapi(start_response, host)
 
 # -----------------------------------------------------------------
 # HTTP: WEB APP
@@ -844,6 +861,9 @@ def application(environ, start_response):
 
     elif environ["PATH_INFO"][0:16] == "/remote/connect/":
         return remote_connection(start_response, environ, config)
+
+    elif environ["PATH_INFO"][0:13] == "/remote/info/":
+        return remote_information(start_response, environ, config)
 
     elif environ["PATH_INFO"] == "/user/prefs":
         return user_prefs(start_response, environ, config)

@@ -28,6 +28,19 @@ pkg-rpm-rocky8:
     paths:
       - dist/mydashboard-*-el8.noarch.rpm
 
+pkg-rpm-alma9:
+  stage: packaging
+  image: almalinux:9
+  script:
+    - dnf install -y rpm-build
+    - echo "Make rpm for AlmaLinux 9"
+    - ./buildrpm
+    - echo "Package built for AlmaLinux 9"
+    - dnf install -y dist/mydashboard-*-el9.noarch.rpm
+  artifacts:
+    paths:
+      - dist/mydashboard-*-el9.noarch.rpm
+
 pkg-archlinux:
   stage: packaging
   image: archlinux

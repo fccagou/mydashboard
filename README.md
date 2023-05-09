@@ -29,7 +29,7 @@ requests. This token is written in ~/.mydashboard file.
 
 So, the token way to run mydashbard is :
 
-    python3 ./mydashboard --d -v --conf data/conf.json
+    python3 ./mydashboard -d -v --conf data/conf.json
 
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/doc
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/ui

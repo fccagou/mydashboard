@@ -91,7 +91,7 @@ const RemoteAccessComponent = {
                         delaySecond: 60,
                         modal: {
                             title: 'Remote exec error (' + response.data.status + ')',
-                            body: "<p>URL :" + response.request.responseURL + "</p><hr>" +
+                            body: "<p>URL: " + response.request.responseURL + "</p><hr>" +
                                 "<p>Command:<br/>" +
                                 response.data.cmd +
                                 "</p><hr>" +

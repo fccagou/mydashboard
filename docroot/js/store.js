@@ -1,9 +1,14 @@
+const TOASTS_MAX = 10;
+
 const store = Vuex.createStore({
     state: {
         toasts: [],
     },
     mutations: {
         addToast(state, toast) {
+            if (state.toasts.length >= TOASTS_MAX) {
+                return;
+            }
             let taggedToast = toast;
             taggedToast['uuid'] = uuidv4();
             state.toasts.push(taggedToast);

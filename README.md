@@ -7,7 +7,7 @@ Master repo: https://gitlab.com/fccagou/mydashboard
 
 Run the microservice
 
-    python ./mydashboard -d -v --notoken --conf data/conf.json
+    python3 ./mydashboard -d -v --notoken --conf data/conf.json
 
 
 To make a user systemd servicea (still issue because of environment vars)
@@ -29,7 +29,7 @@ requests. This token is written in ~/.mydashboard file.
 
 So, the token way to run mydashbard is :
 
-    python ./mydashboard --d -v --conf data/conf.json
+    python3 ./mydashboard -d -v --conf data/conf.json
 
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/doc
     curl  -b "MYTOKEN=$(cat ~/.mydashboard)" http://localhost:8080/ui
@@ -44,7 +44,7 @@ on your current command line.
 
 In unsafe way for example
 
-    python ./mydashboard -d -v --notoken --devmode --conf data/conf.json
+    python3 ./mydashboard -d -v --notoken --devmode --conf data/conf.json
 
 # The web GUI
 ## At startup

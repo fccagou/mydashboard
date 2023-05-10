@@ -5,7 +5,7 @@ const DomainComponent = {
         'ordering',
         'lock',
     ],
-    emits: ['connection-request'],
+    emits: ['connection-request', 'host-information-modal-request'],
     template: `
     <div class="d-flex flex-column align-items-center">
         <p>{{ name }}</p>
@@ -16,7 +16,8 @@ const DomainComponent = {
                     :host="host"
                     :groupName="group.name"
                     :lock="lock"
-                    @connection-request="forwardConnectionRequest"/>
+                    @connection-request="forwardConnectionRequest"
+                    @host-information-modal-request="forwardHostModalRequest"/>
             </template>
         </div>
     </div>`,
@@ -24,6 +25,9 @@ const DomainComponent = {
         forwardConnectionRequest(connection) {
             connection['domain'] = this.name;
             this.$emit('connection-request', connection);
+        },
+        forwardHostModalRequest(host) {
+            this.$emit('host-information-modal-request', host);
         }
     },
     computed: {

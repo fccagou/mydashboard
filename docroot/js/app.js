@@ -30,6 +30,7 @@ app.component('nav-bar', NavBarComponent);
 app.component('site', SiteComponent);
 app.component('domain', DomainComponent);
 app.component('host', HostComponent);
+app.component('host-information-modal', HostInformationModal);
 
 window.addEventListener('DOMContentLoaded', () => {
     app.mount('#app');

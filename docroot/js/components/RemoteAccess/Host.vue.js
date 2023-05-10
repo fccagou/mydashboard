@@ -12,6 +12,7 @@ const HostComponent = {
         v-on:click="handleRequestConnection"
         v-on:contextmenu.prevent="handleRightClick"
         :class="classObject">
+        :class="[classObject, { 'cursor-wait': loading }]">
         <template v-if="loading">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         </template>

@@ -83,3 +83,7 @@ body {
 .btn-settings {
     background-color: #479f76;
 }
+
+.cursor-wait {
+    cursor: wait !important;
+}

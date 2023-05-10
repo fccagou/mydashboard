@@ -6,18 +6,6 @@ const HostComponent = {
     ],
     emits: ['connection-request'],
     template: `
-    <button ref="button" class="btn no-z-index text-nowrap"
-        role="button"
-        :disabled="disableButton"
-        v-on:click="handleRequestConnection"
-        v-on:contextmenu.prevent="handleRightClick"
-        :class="classObject">
-        <template v-if="loading">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        </template>
-        {{ hostname }}
-    </button>
-
     <div ref="modal" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -48,7 +36,19 @@ const HostComponent = {
             </div>
             </div>
         </div>
-    </div>`,
+    </div>
+
+    <button ref="button" class="btn no-z-index text-nowrap"
+        role="button"
+        :disabled="disableButton"
+        v-on:click="handleRequestConnection"
+        v-on:contextmenu.prevent="handleRightClick"
+        :class="classObject">
+        <template v-if="loading">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        </template>
+        {{ hostname }}
+    </button>`,
     data() {
         return {
             loading: false,

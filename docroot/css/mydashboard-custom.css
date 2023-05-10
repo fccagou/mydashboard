@@ -1,48 +1,62 @@
-
-.group-rouge {
+.group-rouge,
+.group-rouge:hover,
+.group-rouge:disabled {
     color: #fff;
     background-color: #dc3545;
     border-color: #dc3545;
 }
-.group-jaune {
+
+.group-jaune,
+.group-jaune:hover,
+.group-jaune:disabled {
     color: #212529;
     background-color: #ffc107;
     border-color: #ffc107;
 }
 
-.group-vert {
+.group-vert,
+.group-vert:hover,
+.group-vert:disabled {
     color: #fff;
     background-color: #28a745;
     border-color: #28a745;
 }
 
-
-.group-blanc {
+.group-blanc,
+.group-blanc:hover,
+.group-blanc:disabled {
     color: #343a40;
     background-color: #ffffff;
     border-color: #343a40;
 }
 
-.group-bleu {
+.group-bleu,
+.group-bleu:hover,
+.group-bleu:disabled {
     color: #fff;
     background-color: #17a2b8;
     border-color: #17a2b8;
 }
 
-.group-marron {
+.group-marron,
+.group-marron:hover,
+.group-marron:disabled {
     color: #fff;
     background-color: #704a4a;
     border-color: #482828;
 }
 
-.group-gris {
+.group-gris,
+.group-gris:hover,
+.group-gris:disabled {
     color: #343a40;
     background-color: #ccc;
     border-color: #548282;
 }
 
-
-.group-nocolor {
+.group-nocolor,
+.group-nocolor:hover,
+.group-nocolor:disabled {
     color: #343a40;
     background-color: #eee;
     border-color: #343a40;

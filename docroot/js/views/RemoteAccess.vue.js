@@ -7,10 +7,10 @@ const RemoteAccessComponent = {
             :ordering="domains_ordering(site.name)"
             :lock="connectionInProgress"
             @connection-request="executeConnection"
-            @host-information-modal-request="showHostModal"
+            @menu-request="showHostMenu"
             />
     </div>
-    <host-information-modal :host_uuid="hostUUIDModal" :trigger_show_modal="triggerShowModal" />`,
+    <host-menu :host="hostMenuPayload" :trigger="triggerMenu" @connection-request="executeConnection" />`,
     data() {
         return {
             hosts: [],
@@ -18,8 +18,8 @@ const RemoteAccessComponent = {
             ordering: {},
             connectionInProgress: false,
             interval: null,
-            hostUUIDModal: null,
-            triggerShowModal: false,
+            triggerMenu: false,
+            hostMenuPayload: {},
         }
     },
     beforeMount() {
@@ -132,9 +132,9 @@ const RemoteAccessComponent = {
         domains_ordering: function (site_name) {
             return this.ordering.hasOwnProperty(site_name) ? this.ordering[site_name] : {};
         },
-        showHostModal: function (host_uuid) {
-            this.hostUUIDModal = host_uuid;
-            this.triggerShowModal = !this.triggerShowModal;
+        showHostMenu: function (host) {
+            this.hostMenuPayload = host;
+            this.triggerMenu = !this.triggerMenu;
         },
     },
     computed: {

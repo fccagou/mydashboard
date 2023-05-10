@@ -88,6 +88,7 @@ setup(name='mydashboard',
                 'docroot/js/components/RemoteAccess/Domain.vue.js',
                 'docroot/js/components/RemoteAccess/Host.vue.js',
                 'docroot/js/components/RemoteAccess/HostInformationModal.vue.js',
+                'docroot/js/components/RemoteAccess/HostMenu.vue.js',
                 ]),
             ],
         )

@@ -849,6 +849,7 @@ def application(environ, start_response):
         "/js/components/RemoteAccess/Domain.vue.js",
         "/js/components/RemoteAccess/Host.vue.js",
         "/js/components/RemoteAccess/HostInformationModal.vue.js",
+        "/js/components/RemoteAccess/HostMenu.vue.js",
     ]
 
     # Load JS dependencies

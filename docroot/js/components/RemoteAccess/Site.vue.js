@@ -5,7 +5,7 @@ const SiteComponent = {
         'ordering',
         'lock',
     ],
-    emits: ['connection-request', 'host-information-modal-request'],
+    emits: ['connection-request', 'menu-request'],
     template: `
     <div class="bg-white shadow rounded-2xl site-width">
         <div class="d-flex align-items-center px-3 py-2 bg-site rounded-top-2xl border-bottom border-2">
@@ -15,7 +15,7 @@ const SiteComponent = {
             <domain v-for="domain in domains_ordered" :key="name + '-' + domain.name"
                 :name="domain.name" :groups="domain.groups" :lock="lock" :ordering="domains_ordering(domain.name)"
                 @connection-request="forwardConnectionRequest"
-                @host-information-modal-request="forwardHostModalRequest"
+                @menu-request="forwardMenuRequest"
                 />
         </div>
     </div>`,
@@ -24,8 +24,8 @@ const SiteComponent = {
             connection['site'] = this.name;
             this.$emit('connection-request', connection);
         },
-        forwardHostModalRequest(host) {
-            this.$emit('host-information-modal-request', host);
+        forwardMenuRequest(host) {
+            this.$emit('menu-request', host);
         },
         domains_ordering(domain_name) {
             if (!this.ordering.hasOwnProperty("domains")) {

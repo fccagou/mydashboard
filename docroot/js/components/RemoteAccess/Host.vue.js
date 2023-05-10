@@ -4,20 +4,22 @@ const HostComponent = {
         'host',
         'lock',
     ],
-    emits: ['connection-request', 'host-information-modal-request'],
+    emits: ['connection-request', 'menu-request'],
     template: `
-    <button ref="button" class="btn no-z-index text-nowrap"
-        role="button"
-        :disabled="disableButton"
-        v-on:click="handleRequestConnection"
-        v-on:contextmenu.prevent="handleRightClick"
-        :class="classObject">
-        :class="[classObject, { 'cursor-wait': loading }]">
-        <template v-if="loading">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        </template>
-        {{ hostname }}
-    </button>`,
+    <div class="btn-group dropend">
+        <button ref="button" class="btn no-z-index text-nowrap"
+            type="button"
+            :disabled="disableButton"
+            v-on:click="handleRequestConnection"
+            v-on:contextmenu.prevent="handleRightClick"
+            :class="[classObject, { 'cursor-wait': loading }]">
+            <template v-if="loading">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </template>
+            {{ hostname }}
+        </button>
+    </div>
+    `,
     data() {
         return {
             loading: false,
@@ -40,29 +42,17 @@ const HostComponent = {
                 host_data_ref: this.$data
             });
         },
-        loadDetailledHost() {
-            axios.get(`/remote/info/${this.host.uuid}`).then((response) => {
-                this.hostDetailled = response.data;
-            }).catch((error) => {
-                this.$store.commit('addToast', {
-                    type: 'warning',
-                    title: 'Unable to contact API',
-                    body: 'Impossible to retrieve information of the available hosts',
-                    delaySecond: 10,
-                })
-            });
-        },
-        handleRightClick() {
-            //TODO: Context menu
+        handleRightClick(event) {
             if (this.loading) { // ignore when already loading...
                 return;
             }
-            this.$emit('host-information-modal-request', this.host.uuid);
+            this.$emit('menu-request', {
+                host_uuid: this.host.uuid,
+                hostname: this.hostname,
+                host_data_ref: this.$data,
+                event: event,
+            });
         },
-        connectWithModal() {
-            this.modalInstance.hide();
-            this.handleRequestConnection();
-        }
     },
     computed: {
         disableButton: function () {

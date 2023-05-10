@@ -75,14 +75,9 @@ const HostInformationModal = {
         }
     },
     watch: {
-        host_uuid(newHost, oldHost) {
-            if (this.loading) { // ignore when already loading...
-                return;
-            }
-            this.loadDetailledHost();
-        },
         trigger_show_modal(newVal, oldVal) {
             this.modalInstance.show();
+            this.loadDetailledHost();
         }
     }
 };

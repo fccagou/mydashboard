@@ -708,7 +708,9 @@ def user_prefs_global(start_response, environ, config):
                         {"resolution": "resolution must be a string"}
                     )
                 else:
-                    if not re.match(r"^\d+x\d+$", sent_prefs["resolution"]):
+                    # check if resolution is a string with format "WxH"
+                    # if blank, it's ok. it means that the user wants to use the default resolution
+                    if sent_prefs["resolution"] != "" and not re.match(r"^\d+x\d+$", sent_prefs["resolution"]):
                         errors.append(
                             {
                                 "resolution": "resolution must be a string with format WxH"
@@ -716,7 +718,8 @@ def user_prefs_global(start_response, environ, config):
                         )
             new_prefs = {"global": sent_prefs}
             try:
-                config.save_user_prefs(new_prefs)
+                if not errors:
+                    config.save_user_prefs(new_prefs)
             except:
                 errors.append({"user preferences": "Can't write to file "})
         except:

@@ -40,6 +40,9 @@ const UserPreferencesComponent = {
                 let resolution = payload.resolution.split('x');
                 this.width = resolution[0];
                 this.height = resolution[1];
+            } else {
+                this.width = screen.width
+                this.height = screen.height
             }
         },
         saveSettings() {

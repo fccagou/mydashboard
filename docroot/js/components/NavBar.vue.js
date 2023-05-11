@@ -9,7 +9,7 @@ const NavBarComponent = {
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <div class="navbar-nav me-auto">
-            <a class="nav-link" target="_blank" v-for="(value, key, index) in links" key="{{ key }}-{{ index }}" :href="value">{{ key }}</a>
+            <a class="nav-link" target="_blank" v-for="(link, index) in links" :key="index" :href="link.url">{{ link.label }}</a>
           </div>
 
           <router-link type="button" class="btn btn-success btn-settings rounded-pill" :to="{ name: 'UserPreferences' }"><i class="bi bi-gear-fill"></i> Settings</router-link>
@@ -23,7 +23,9 @@ const NavBarComponent = {
   },
   beforeMount() {
     axios.get('/conf/menu').then((response) => {
-      this.links = response.data;
+      if ("menu" in response.data) {
+        this.links = response.data.menu;
+      }
     }).catch((error) => {
       console.error("Fail to get menu");
     });

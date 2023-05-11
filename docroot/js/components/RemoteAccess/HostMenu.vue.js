@@ -29,11 +29,11 @@ const HostMenuComponent = {
     methods: {
         connect() {
             this.$emit('connection-request', this.host);
-            this.showMenu = false;
+            this.hideMenu();
         },
         showInformation() {
             this.triggerShowModal = !this.triggerShowModal;
-            this.showMenu = false;
+            this.hideMenu();
         },
         hideMenu() {
             this.showMenu = false;

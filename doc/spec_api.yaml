@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: MyDashboard API
+  version: 0.0.1
+servers:
+  - url: http://127.0.0.1:8080
+tags:
+  - name: remote
+    description: Operations about remote host
+  - name: menu
+    description: Operations about menu
+paths:
+  /conf/menu:
+    get:
+      tags:
+        - menu
+      summary: Get menu configuration
+      description: Get menu configuration
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  menu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MenuItem'
+  /remote/list:
+    get:
+      tags:
+        - remote
+      summary: List remote hosts
+      description: List remote hosts
+      operationId: remote_list
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hosts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Remote'
+                  ordering:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/Ordering'
+                    properties:
+                      domains:
+                        type: object
+                        additionalProperties:
+                          $ref: '#/components/schemas/Ordering'
+                        properties:
+                          groups:
+                            type: object
+                            additionalProperties:
+                              $ref: '#/components/schemas/Ordering'
+                    example:
+                      france:
+                        order: 1
+                        domains:
+                          domaine1:
+                            order: 1
+                            groups:
+                              vert:
+                                order: 1
+                              rouge:
+                                order: 2
+                          domaine2:
+                            order: 2
+                      vanuatu:
+                        order: 2
+components:
+  schemas:
+    Remote:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          example: 5b820b52-f03f-11ed-a05b-0242ac120003
+        name:
+          type: string
+          example: TS-01
+        alias:
+          type: string
+          example: MyTS
+        config:
+          $ref: '#/components/schemas/RemoteConfig'
+    RemoteConfig:
+      type: object
+      properties:
+        protocol:
+          type: string
+          example: ssh
+        site:
+          type: string
+          example: france
+        domain:
+          type: string
+          example: domaine1
+        group:
+          type: string
+          example: vert
+    Ordering:
+      type: object
+      properties:
+        order:
+          type: integer
+          example: 1
+    MenuItem:
+      type: object
+      properties:
+        label:
+          type: string
+          example: '[Code]'
+        url:
+          type: string
+          example: https://gitlab.com/fccagou/mydashboard

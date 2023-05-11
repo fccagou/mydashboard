@@ -390,6 +390,10 @@ def page(start_response, output, ctype="text/plain", status="200 OK"):
     This is the low level tool used by other functions.
     """
     response_headers = [("Content-type", ctype), ("Content-Length", str(len(output)))]
+    # Use global config, but param should be better
+    if config.dev_mode:
+        response_headers.append(("Access-Control-Allow-Origin", "*"))
+
     start_response(status, response_headers)
     return [output]
 

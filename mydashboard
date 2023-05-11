@@ -319,6 +319,13 @@ class MyConfig:
             "ordering": self.remotes.get_formatting_order
         }
 
+    def get_menu(self):
+        try:
+            return json.loads(open(self.menu_conf, "r").read())
+        except:
+            error("Unable to load menu file: %s" % self.menu_conf)
+            return {}
+
 
 config = MyConfig()
 
@@ -677,6 +684,25 @@ def user_prefs(start_response, environ, config):
     data["errors"] = errors
     return jsonapi(start_response, data)
 
+def menu_list(start_response, config):
+    """Sends menu list to ui
+    Format:
+    {
+        "menu": [
+            {
+                "label": "[Code]",
+                "url": "https://gitlab.com/fccagou/mydashboard"
+            }
+        ]
+    }
+    """
+
+    menus = config.get_menu()
+    data = {"menu": []}
+    for k, v in menus.items():
+        data["menu"].append({"label": k, "url": v})
+
+    return jsonapi(start_response, data)
 
 def remote_list(start_response, environ, config):
     """Sends remote hosts list
@@ -848,13 +874,7 @@ def application(environ, start_response):
         )
 
     elif environ["PATH_INFO"] == "/conf/menu":
-        return static_page(
-            start_response,
-            config.document_root,
-            config.menu_conf,
-            fullpath=True,
-            ctype="application/json; charset=UTF-8",
-        )
+        return menu_list(start_response, config)
 
     elif environ["PATH_INFO"] == "/remote/list":
         return remote_list(start_response, environ, config)

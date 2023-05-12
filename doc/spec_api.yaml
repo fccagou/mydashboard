@@ -183,6 +183,53 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PreferenceItem'
+    post:
+      tags:
+        - user-config
+      summary: Set global preferences
+      description: Set global preferences
+      operationId: local_preferences_global_set
+      requestBody:
+        description: Preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: array
+                  items:
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+              example:
+                code: 200
+                message: Preferences updated
+        '400':
+          description: Invalid preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorFormResponse'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+              example:
+                code: 404
+                message: Host not found
   '/user/preferences/host/{hostId}':
     get:
       tags:
@@ -210,6 +257,61 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PreferenceItem'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+              example:
+                code: 404
+                message: Host not found
+    post:
+      tags:
+        - user-config
+      summary: Set host preferences
+      description: Set host preferences
+      operationId: user_preferences_host_set
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: array
+                  items:
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+              example:
+                code: 200
+                message: Preferences updated
+        '400':
+          description: Invalid preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorFormResponse'
         '404':
           description: Remote host not found
           content:

@@ -22,9 +22,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MenuItem'
+                type: object
+                properties:
+                  menu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MenuItem'
   /remote/list:
     get:
       tags:

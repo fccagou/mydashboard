@@ -7,8 +7,10 @@ const RemoteAccessComponent = {
             :ordering="domains_ordering(site.name)"
             :lock="connectionInProgress"
             @connection-request="executeConnection"
+            @menu-request="showHostMenu"
             />
-    </div>`,
+    </div>
+    <host-menu :host="hostMenuPayload" :trigger="triggerMenu" @connection-request="executeConnection" />`,
     data() {
         return {
             hosts: [],
@@ -16,6 +18,8 @@ const RemoteAccessComponent = {
             ordering: {},
             connectionInProgress: false,
             interval: null,
+            triggerMenu: false,
+            hostMenuPayload: {},
         }
     },
     beforeMount() {
@@ -127,7 +131,11 @@ const RemoteAccessComponent = {
         },
         domains_ordering: function (site_name) {
             return this.ordering.hasOwnProperty(site_name) ? this.ordering[site_name] : {};
-        }
+        },
+        showHostMenu: function (host) {
+            this.hostMenuPayload = host;
+            this.triggerMenu = !this.triggerMenu;
+        },
     },
     computed: {
         sites_ordered: function () {

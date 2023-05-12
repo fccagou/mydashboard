@@ -695,7 +695,7 @@ def user_preferences_global(start_response, environ, config):
         except (ValueError):
             request_body_size = 0
         try:
-            sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))
+            sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))["preferences"]
 
             # validate payload data before writing
             # checks the following:

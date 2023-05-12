@@ -82,6 +82,7 @@ setup(name='mydashboard',
                 'docroot/js/components/NavBar.vue.js',
                 'docroot/js/components/Toasts.vue.js',
                 'docroot/js/components/Toast.vue.js',
+                'docroot/js/components/PreferenceInput.vue.js',
                 ]),
             ('/etc/mydashboard/html/js/components/RemoteAccess', [
                 'docroot/js/components/RemoteAccess/Site.vue.js',

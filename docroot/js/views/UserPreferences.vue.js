@@ -4,22 +4,20 @@ const UserPreferencesComponent = {
         <h2 class="text-center">User Preferences</h2>
         <p>This page allows you to set custom values that are global. This means that all hosts are affected by these settings.</p>
         <div>
-            <div class="form-check form-switch user-select-none">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" v-model="fullscreen" v-on:change="saveSettings">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Fullscreen</label>
-            </div>
-            <div class="input-group mb-3">
-                <input type="number" min="0" class="form-control" placeholder="Width" aria-label="Width" v-model="width" v-on:change="saveSettings">
-                <span class="input-group-text">x</span>
-                <input type="number" min="0" class="form-control" placeholder="Heigh" aria-label="Heigh" v-model="height" v-on:change="saveSettings">
-            </div>
+            <preference-input
+                v-for="preference in preferences"
+                v-bind:key="preference.name"
+                v-bind:name="preference.name"
+                v-bind:type="preference.type"
+                v-bind:default="preference.default"
+                v-model:value="preference.value">
+            </preference-input>
+            <button class="btn btn-primary" @click="saveSettings">Save</button>
         </div>
     </div>`,
     data() {
         return {
-            fullscreen: false,
-            width: undefined,
-            height: undefined,
+            preferences: {},
         }
     },
     beforeMount() {
@@ -27,30 +25,64 @@ const UserPreferencesComponent = {
     },
     methods: {
         requestGlobalPreferences() {
-            axios.get('/user/prefs/global').then((response) => {
+            axios.get('/user/preferences/global').then((response) => {
                 this.updateSettings(response.data);
             });
         },
         updateSettings(payload) {
-            // if fullscreen is in response data
-            if ('fullscreen' in payload) {
-                this.fullscreen = payload.fullscreen;
-            }
-            if ('resolution' in payload) {
-                let resolution = payload.resolution.split('x');
-                this.width = resolution[0];
-                this.height = resolution[1];
-            } else {
-                this.width = screen.width
-                this.height = screen.height
+            this.preferences = payload.preferences;
+
+            // parse the resolution into width and height
+            for (let preference of this.preferences) {
+                if (preference.type === 'resolution') {
+                    // replace value with an object
+                    let resolution = preference.value.split('x');
+                    preference.value = {
+                        width: resolution[0],
+                        height: resolution[1],
+                    };
+                    // replace default with an object
+                    resolution = preference.default.split('x');
+                    preference.default = {
+                        width: resolution[0],
+                        height: resolution[1],
+                    };
+                }
             }
         },
         saveSettings() {
             // make a request to the server to update the user's preferences
-            axios.post('/user/prefs/global', {
-                fullscreen: this.fullscreen,
-                resolution: this.resolution,
-            }).then((response) => {
+
+            let payload = this.preferences;
+
+            // parse the resolution into a string
+            for (let preference of payload) {
+                if (preference.type === 'resolution') {
+                    if (!preference.value.width || !preference.value.height) {
+                        preference.value = "";
+                    } else {
+                        preference.value = preference.value.width + 'x' + preference.value.height;
+                    }
+                }
+            }
+
+            // remove empty values or values that are the same as the default
+            payload = payload.filter((preference) => {
+                if (preference.value === "" || preference.value === preference.default) {
+                    return false;
+                }
+                return true;
+            });
+
+            // remove attributes that are not needed by the server (default, type)
+            payload = payload.map((preference) => {
+                return {
+                    name: preference.name,
+                    value: preference.value,
+                };
+            });
+
+            axios.post('/user/preferences/global', { "preferences": payload }).then((response) => {
                 this.$store.commit('addToast', {
                     type: 'success',
                     title: 'Preferences saved',
@@ -66,13 +98,5 @@ const UserPreferencesComponent = {
                 })
             })
         },
-    },
-    computed: {
-        resolution() {
-            if (this.width === "" || this.height === "") {
-                return '';
-            }
-            return `${this.width}x${this.height}`;
-        }
     },
 };

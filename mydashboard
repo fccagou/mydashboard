@@ -925,6 +925,7 @@ def application(environ, start_response):
         "/js/components/NavBar.vue.js",
         "/js/components/Toasts.vue.js",
         "/js/components/Toast.vue.js",
+        "/js/components/PreferenceInput.vue.js",
         "/js/components/RemoteAccess/Site.vue.js",
         "/js/components/RemoteAccess/Domain.vue.js",
         "/js/components/RemoteAccess/Host.vue.js",

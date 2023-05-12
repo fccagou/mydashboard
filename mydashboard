@@ -891,6 +891,15 @@ def application(environ, start_response):
                 status="418 I'm a teapot",
             )
 
+    if environ["REQUEST_METHOD"] == "OPTIONS":
+        return page(
+            start_response,
+            wsgi_to_bytes(""),
+            headers=[
+                ("Access-Control-Allow-Methods", "GET, POST")
+            ]
+        )
+
     # Static files
     static_files = [
         "/css/bootstrap.min.css",

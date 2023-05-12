@@ -678,7 +678,7 @@ def launch_gui(config):
     return status
 
 
-def user_prefs_global(start_response, environ, config):
+def user_preferences_global(start_response, environ, config):
     """Returns user preferences
     if POST method is used, save new user prefs.
     """
@@ -725,17 +725,38 @@ def user_prefs_global(start_response, environ, config):
         except:
             errors.append({"user preferences": "POST data are not valid"})
 
+    # POC: create a dedicated class
+    # Default values.
+
+    data = {
+        "preferences": [
+            {
+                "name": "fullscreen",
+                "value": False,
+                "default": False,
+                "type": "boolean",
+            },
+            {
+                "name": "resolution",
+                "value": "1024x768",
+                "default": "1024x768",
+                "type": "resolution",
+            }
+        ],
+        "errors": errors,
+    }
+
+    # Merge with user values
     config.load_user_prefs()
     if "global" in config._user_prefs:
-        data = config._user_prefs["global"]
-    else:
-        data = {}
+        for i, conf in enumerate(data["preferences"]):
+            if conf["name"] in config._user_prefs["global"]:
+                data["preferences"][i]["value"] = config._user_prefs["global"][conf["name"]]
 
     if errors:
         status = 400
     else:
         status = 200
-    data["errors"] = errors
     return jsonapi(start_response, data, status)
 
 def menu_list(start_response, config):
@@ -937,8 +958,8 @@ def application(environ, start_response):
     elif environ["PATH_INFO"][0:13] == "/remote/info/":
         return remote_information(start_response, environ, config)
 
-    elif environ["PATH_INFO"] == "/user/prefs/global":
-        return user_prefs_global(start_response, environ, config)
+    elif environ["PATH_INFO"] == "/user/preferences/global":
+        return user_preferences_global(start_response, environ, config)
 
     else:
         # TODO: passer un message d'erreur

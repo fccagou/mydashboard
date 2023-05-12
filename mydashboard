@@ -402,6 +402,7 @@ def page(start_response, output, ctype="text/plain", status="200 OK", headers=[]
     # Use global config, but param should be better
     if config.dev_mode:
         response_headers.append(("Access-Control-Allow-Origin", "*"))
+        response_headers.append(("Access-Control-Allow-Headers", "API-Key,accept, Content-Type"))
 
     start_response(status, response_headers)
     return [output]

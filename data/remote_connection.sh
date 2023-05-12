@@ -10,7 +10,7 @@ SEC="${6}"
 
 if [ "${PROTO}" == "ssh" ] || [ "${GROUP}" == "bleu" ]
 then
-    if ! bash -c "</dev/tcp/${REMOTE_HOST}/22" >/dev/null 2>&1
+    if ! timeout --preserve-status 3 bash -c "</dev/tcp/${REMOTE_HOST}/22" >/dev/null 2>&1
 	then
 		ret=1
 		echo "Host ${REMOTE_HOST} unreachable" >/dev/stderr

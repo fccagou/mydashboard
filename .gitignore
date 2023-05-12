@@ -4,4 +4,4 @@ MANIFEST
 build/
 pkg/*
 !pkg/arch/PKGBUILD
-
+data/user-preferences.json

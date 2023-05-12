@@ -721,16 +721,14 @@ def remote_list(start_response, environ, config):
     -  Read remote list from json
     -  apply filter red from api (environ)
     """
-    errors = {}
 
     try:
         data = config.get_remotes()
     except:
-        return jsonapi(start_response, {"Error": {"Loading hosts list": {"rouge": []}}})
+        return jsonapi(start_response, {"code": 1, "message": "Can't read remotes configuration"}, 500)
 
     # filter from api or externals data.
 
-    data["errors"] = errors
     return jsonapi(start_response, data)
 
 
@@ -738,8 +736,7 @@ def remote_connection(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][16:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        # TODO: send error uuid not found
-        raise NotImplemented
+        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
 
     remote_host = host["name"]
     site = host["config"]["site"]
@@ -787,8 +784,7 @@ def remote_information(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][13:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        # TODO: send error uuid not found
-        raise NotImplemented
+        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
 
     # Get merged configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)

@@ -146,8 +146,13 @@ paths:
                     type: string
                     example: TS-01
                   config:
-                    $ref: '#/components/schemas/RemoteConfig'
-                  # TODO: add protocol configuration
+                    allOf:
+                      - $ref: '#/components/schemas/RemoteConfig'
+                      - properties:
+                          proto-config:
+                            type: object
+                            example:
+                              sec: nla
         '404':
           description: Remote host not found
           content:

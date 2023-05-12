@@ -793,7 +793,7 @@ def remote_information(start_response, environ, config):
     if host["config"]["proto"] in host:
         del host["config"][host["config"]["proto"]]
 
-    host["config"][host["config"]["proto"]] = connection_configuration
+    host["config"]["proto-config"] = connection_configuration
 
     return jsonapi(start_response, host)
 

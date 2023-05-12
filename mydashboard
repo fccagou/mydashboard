@@ -429,11 +429,16 @@ def static_page(start_response, document_root, filename, fullpath=False, ctype=N
     return page(start_response, output, ctype=ctype, status=status)
 
 
-def jsonapi(start_response, data):
+def jsonapi(start_response, data, code=200):
     """
     Send data in json format.
     """
-    status = "200 OK"
+    if code == 200:
+        status = "200 OK"
+    elif code == 400:
+        status = "400 BAD REQUEST"
+    else:
+        status = "%d ERROR" % code
 
     try:
         import json

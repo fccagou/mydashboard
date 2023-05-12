@@ -320,8 +320,23 @@ class MyConfig:
 
     def get_remotes(self, name=None):
         self.remotes.load()
+        filtered_hosts = list(self.remotes.search(host_name=name))
+
+        # applying user preférences.
+        self.load_user_prefs()
+        if "hosts" in  self._user_prefs:
+            for i, h in enumerate(filtered_hosts):
+                uuid=h["uuid"]
+                if uuid in self._user_prefs["hosts"]:
+                    current_host=self._user_prefs["hosts"][uuid]
+                    for key in ("alias", ):
+                        if key in current_host:
+                            filtered_hosts[i][key] = current_host[key]
+                        else:
+                            print(f"WARNING(user-preferences): host {uuid} has not meta-data {key}")
+
         return {
-            "hosts": list(self.remotes.search(host_name=name)),
+            "hosts": filtered_hosts,
             "ordering": self.remotes.get_formatting_order
         }
 

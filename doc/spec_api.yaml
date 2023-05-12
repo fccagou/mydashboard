@@ -177,3 +177,45 @@ components:
         url:
           type: string
           example: https://gitlab.com/fccagou/mydashboard
+    RemoteConnect:
+      type: object
+      properties:
+        cmd:
+          type: string
+          example: './data/remote_connect.sh ...'
+        status:
+          type: integer
+          example: 2
+        pid:
+          type: integer
+          example: 1234
+        msg:
+          type: string
+          description: Connection message
+    ApiErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 1234
+        message:
+          type: string
+          example: 'Error message'
+    ApiErrorForm:
+      type: object
+      properties:
+        field:
+          type: string
+          example: 'field_name'
+        message:
+          type: string
+          example: 'Error message'
+    ApiErrorFormResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - properties:
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApiErrorForm'

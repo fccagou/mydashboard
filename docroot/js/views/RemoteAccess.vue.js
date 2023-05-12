@@ -63,15 +63,23 @@ const RemoteAccessComponent = {
                     }
                     group.hosts.push(host);
                 }
-
-                // TODO: disply toast if errors
             }).catch((error) => {
-                this.$store.commit('addToast', {
-                    type: 'warning',
-                    title: 'Unable to contact API',
-                    body: 'Impossible to retrieve information of the available hosts',
-                    delaySecond: 10,
-                })
+                // if code is 500, the API return an error
+                if (error.response && error.response.status === 500) {
+                    this.$store.commit('addToast', {
+                        type: 'danger',
+                        title: 'Internal error',
+                        body: error.response.data.message,
+                        delaySecond: 10,
+                    })
+                } else { // if code is not 500, the API may be unreachable
+                    this.$store.commit('addToast', {
+                        type: 'warning',
+                        title: 'Unable to contact API',
+                        body: 'Impossible to retrieve information of the available hosts',
+                        delaySecond: 10,
+                    })
+                }
             });
         },
         executeConnection(connection) {

@@ -428,25 +428,26 @@ def static_page(start_response, document_root, filename, fullpath=False, ctype=N
 
     return page(start_response, output, ctype=ctype, status=status)
 
+def get_http_code(code):
+    if code == 200:
+        return "200 OK"
+    elif code == 400:
+        return "400 BAD REQUEST"
+    elif code == 500:
+        return "500 INTERNAL ERROR"
+    else:
+        return "%d ERROR" % code
 
 def jsonapi(start_response, data, code=200):
     """
     Send data in json format.
     """
-    if code == 200:
-        status = "200 OK"
-    elif code == 400:
-        status = "400 BAD REQUEST"
-    else:
-        status = "%d ERROR" % code
-
+    status = get_http_code(code)
     try:
-        import json
-
         output = json.dumps(data)
         ctype = "application/json; charset=UTF-8"
     except:
-        status = "500 INTERNAL ERROR"
+        status = get_http_code(500)
         import traceback
 
         warning("INTERNAL ERROR: %s " % sys.exc_info()[0])
@@ -720,16 +721,14 @@ def remote_list(start_response, environ, config):
     -  Read remote list from json
     -  apply filter red from api (environ)
     """
-    errors = {}
 
     try:
         data = config.get_remotes()
     except:
-        return jsonapi(start_response, {"Error": {"Loading hosts list": {"rouge": []}}})
+        return jsonapi(start_response, {"code": 1, "message": "Can't read remotes configuration"}, 500)
 
     # filter from api or externals data.
 
-    data["errors"] = errors
     return jsonapi(start_response, data)
 
 
@@ -737,8 +736,7 @@ def remote_connection(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][16:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        # TODO: send error uuid not found
-        raise NotImplemented
+        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
 
     remote_host = host["name"]
     site = host["config"]["site"]
@@ -786,8 +784,7 @@ def remote_information(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][13:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        # TODO: send error uuid not found
-        raise NotImplemented
+        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
 
     # Get merged configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
@@ -796,7 +793,7 @@ def remote_information(start_response, environ, config):
     if host["config"]["proto"] in host:
         del host["config"][host["config"]["proto"]]
 
-    host["config"][host["config"]["proto"]] = connection_configuration
+    host["config"]["proto-config"] = connection_configuration
 
     return jsonapi(start_response, host)
 

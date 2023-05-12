@@ -152,6 +152,10 @@ class Token:
 
 
 class Remotes:
+    """
+    Manage remotes downloaded by uri.
+    Data are in json format.
+    """
     def __init__(self, uri=None):
         self.remote_uri = uri
         self.remotes = {}
@@ -241,7 +245,11 @@ class Remotes:
 
         return config
 
+# -----------------------------------------------------------------
 class MyConfig:
+    """
+    Class used to manage program configuration.
+    """
     def __init__(self):
 
         # Default web server listening port
@@ -308,7 +316,6 @@ class MyConfig:
             error("Unable to load user preferences file: %s" % self.user_prefs_filename)
             self._user_prefs = {}
 
-
     def save_user_prefs(self, data=None):
         if data is not None:
             # merge with existing data
@@ -333,7 +340,7 @@ class MyConfig:
                         if key in current_host:
                             filtered_hosts[i][key] = current_host[key]
                         else:
-                            print(f"WARNING(user-preferences): host {uuid} has not meta-data {key}")
+                            warning(f"user-preferences: host {uuid} has not meta-data {key}")
 
         return {
             "hosts": filtered_hosts,
@@ -346,6 +353,193 @@ class MyConfig:
         except:
             error("Unable to load menu file: %s" % self.menu_conf)
             return {}
+
+# --------------------------------------------------------------
+
+class BadValueException(BaseException):
+    """
+    Exception sent when user try to set bad value format.
+    """
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+# --------------------------------------------------------------
+class UserGlobalConf:
+    """
+    Class used to manage user global configuration in local user configuration
+    file.
+
+    Data are store in config.user_prefs_filename in JSON format in global dict:
+    {
+     ...
+         "global": {
+             "name1": "value1",
+             "name2": "value2",
+             ...
+         }
+     ...
+    }
+
+    defaults dict contain all managed data names and associated default values.
+
+    For each data, the class contains a getter and a setter. the setter check
+    the format of new value using check_{att_name} function.
+
+    If the check is ok, the value is set, else, a BadValueException is raised.
+    """
+
+    defaults = {
+        "fullscreen": False,
+        "resolution": "1024x768"
+    }
+
+    def attributs():
+        """
+        Returns all names of managed data.
+        """
+        return UserGlobalConf.defaults.keys()
+
+    def check_fullscreen(value):
+        return isinstance(value, bool)
+
+    def check_resolution(value):
+        return (
+            isinstance(value, str)
+            and re.match(r"^\d+x\d+$", value)
+        )
+
+    def __init__(self):
+        """
+        By default, new object is initialized with defaults values.
+        """
+        for a in UserGlobalConf.attributs():
+            self.__dict__[f"_{a}"] = UserGlobalConf.defaults[a]
+
+    def __str__(self):
+        str="UserGlobalConf: "
+        for a in UserGlobalConf.attributs():
+            attr = getattr(self, f"_{a}")
+            str += f"_{a}={attr} "
+        return str
+
+
+    @property
+    def resolution(self):
+        return self._resolution
+
+    @resolution.setter
+    def resolution(self, res):
+        if UserGlobalConf.check_resolution(res):
+            self._resolution = res
+        else:
+            raise BadValueException(f"resolution bad value: {res}")
+
+    @property
+    def fullscreen(self):
+        return self._fullscreen
+
+    @fullscreen.setter
+    def fullscreen(self, full):
+        if UserGlobalConf.check_fullscreen(full):
+            self._fullscreen = full
+        else:
+            raise BadValueException(f"fullscreen bad value: {full} not Boolean")
+
+    def store_fmt(self):
+        """
+        Format data for local storage.
+        TODO: move to UserConf new class.
+        """
+        data = { "global": {} }
+        for a in UserGlobalConf.attributs():
+            attr = getattr(self, f"_{a}")
+            data["global"][a] = attr
+        return data
+
+    def load(self,data):
+        """
+        Initialise class using data from user preference file.
+        data is a dict.
+        """
+        if "global" in data:
+            for a in UserGlobalConf.attributs():
+                if a in data["global"]:
+                    setattr(self, a, data["global"][a])
+
+
+# ----------------------------------------------------------------------
+class ApiJSON:
+    """
+    Class used to manage data format for api exchange.
+    IHM for example.
+
+    Sent data is an array of couple name/value :
+       {
+           "preferences": [
+               {
+                   "name": "key1",
+                   "value": "val1"
+               },
+               ....
+           ]
+       }
+
+    In user configuration file, data are stored in a dict form:
+       {
+           "global": [
+               {
+                   "key1": "val1",
+                   ....
+               }
+           ]
+       }
+
+    The translation's done here.
+    """
+    def __init__(self):
+        self.version="1"
+
+    def user_global_conf_fmt(ugc):
+        """
+        Transform UserGlobalConf in json format sent to front.
+        """
+        return {
+            "preferences": [
+                {
+                    "name": "fullscreen",
+                    "value": ugc.fullscreen,
+                    "default": UserGlobalConf.defaults["fullscreen"],
+                    "type": "boolean"
+                },
+                {
+                    "name": "resolution",
+                    "value": ugc.resolution,
+                    "default": UserGlobalConf.defaults["resolution"],
+                    "type": "resolution"
+                }
+            ]
+        }
+
+    def user_global_conf(data):
+        """
+        Transform sent json data into UserGlobalConf object.
+        """
+        if not isinstance(data, dict):
+            raise BadValueException("data is not a dict")
+
+        ugc = UserGlobalConf()
+        for p in data["preferences"]:
+            a_name = p["name"]
+            if a_name in UserGlobalConf.attributs():
+                setattr(ugc, a_name, p["value"])
+
+        return ugc
+
+
 
 
 config = MyConfig()
@@ -699,106 +893,32 @@ def launch_gui(config):
 
 def user_preferences_global(start_response, environ, config):
     """Returns user preferences
-    if POST method is used, save new user prefs.
-
-    Sent data is an array of couple name/value :
-       {
-           "global": [
-               {
-                   "name": "key1",
-                   "value": "val1"
-               }
-
-           ]
-       }
-
-    In user configuration file, data are stored in a dict form:
-       {
-           "global": [
-               {
-                   "key1": "val1"
-               }
-
-           ]
-       }
-
-    The translation's done here.
 
     """
-
     errors = []
-
     if environ["REQUEST_METHOD"] == "POST":
         try:
             request_body_size = int(environ.get("CONTENT_LENGTH", 0))
         except (ValueError):
             request_body_size = 0
         try:
-            sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))["preferences"]
-
-            # validate payload data before writing
-            # checks the following:
-            # - fullscreen is a boolean
-            # - resolution is a string with format "WxH"
-            if "fullscreen" in sent_prefs:
-                if not isinstance(sent_prefs["fullscreen"], bool):
-                    errors.append(
-                        {"fullscreen": "fullscreen must be a boolean"}
-                    )
-            if "resolution" in sent_prefs:
-                if not isinstance(sent_prefs["resolution"], str):
-                    errors.append(
-                        {"resolution": "resolution must be a string"}
-                    )
-                else:
-                    # check if resolution is a string with format "WxH"
-                    # if blank, it's ok. it means that the user wants to use the default resolution
-                    if sent_prefs["resolution"] != "" and not re.match(r"^\d+x\d+$", sent_prefs["resolution"]):
-                        errors.append(
-                            {
-                                "resolution": "resolution must be a string with format WxH"
-                            }
-                        )
-
+            # Get data sent by front
+            ugc = ApiJSON.user_global_conf(
+                json.loads(environ["wsgi.input"].read(request_body_size))
+            )
             try:
-                if not errors:
-                    # Translate Array sent to dict for local store.
-                    new_prefs = {"global": {} }
-                    for p in sent_prefs:
-                        new_prefs["global"][p["name"]] = p["value"]
-                    config.save_user_prefs(new_prefs)
+                 config.save_user_prefs(ugc.store_fmt())
             except:
                 errors.append({"user preferences": "Can't write to file "})
         except:
             errors.append({"user preferences": "POST data are not valid"})
 
-    # POC: create a dedicated class
-    # Default values.
-
-    data = {
-        "preferences": [
-            {
-                "name": "fullscreen",
-                "value": False,
-                "default": False,
-                "type": "boolean",
-            },
-            {
-                "name": "resolution",
-                "value": "1024x768",
-                "default": "1024x768",
-                "type": "resolution",
-            }
-        ],
-        "errors": errors,
-    }
-
     # Merge with user values
     config.load_user_prefs()
-    if "global" in config._user_prefs:
-        for i, conf in enumerate(data["preferences"]):
-            if conf["name"] in config._user_prefs["global"]:
-                data["preferences"][i]["value"] = config._user_prefs["global"][conf["name"]]
+    ugc = UserGlobalConf ()
+    ugc.load(config._user_prefs)
+    data = ApiJSON.user_global_conf_fmt(ugc)
+    data["errors"] = errors
 
     if errors:
         status = 400

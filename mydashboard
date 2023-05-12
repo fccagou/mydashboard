@@ -685,6 +685,30 @@ def launch_gui(config):
 def user_preferences_global(start_response, environ, config):
     """Returns user preferences
     if POST method is used, save new user prefs.
+
+    Sent data is an array of couple name/value :
+       {
+           "global": [
+               {
+                   "name": "key1",
+                   "value": "val1"
+               }
+
+           ]
+       }
+
+    In user configuration file, data are stored in a dict form:
+       {
+           "global": [
+               {
+                   "key1": "val1"
+               }
+
+           ]
+       }
+
+    The translation's done here.
+
     """
 
     errors = []
@@ -720,9 +744,13 @@ def user_preferences_global(start_response, environ, config):
                                 "resolution": "resolution must be a string with format WxH"
                             }
                         )
-            new_prefs = {"global": sent_prefs}
+
             try:
                 if not errors:
+                    # Translate Array sent to dict for local store.
+                    new_prefs = {"global": {} }
+                    for p in sent_prefs:
+                        new_prefs["global"][p["name"]] = p["value"]
                     config.save_user_prefs(new_prefs)
             except:
                 errors.append({"user preferences": "Can't write to file "})

@@ -9,6 +9,8 @@ tags:
     description: Operations about remote host
   - name: menu
     description: Operations about menu
+  - name: user-config
+    description: Operations about user configuration
 paths:
   /conf/menu:
     get:
@@ -162,6 +164,25 @@ paths:
               example:
                 code: 404
                 message: Host not found
+  '/user/preferences/global':
+    get:
+      tags:
+        - user-config
+      summary: Get global preferences
+      description: Get global preferences
+      operationId: local_preferences_global
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PreferenceItem'
 components:
   schemas:
     Remote:
@@ -224,6 +245,22 @@ components:
         msg:
           type: string
           description: Connection message
+    PreferenceItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'my_pref'
+        value:
+          type: string
+          example: 'my_value'
+        default:
+          type: string
+          example: 'default_value'
+        type:
+          type: string
+          enum: [resolution, boolean, integer]
+          example: 'boolean'
     ApiErrorResponse:
       type: object
       properties:

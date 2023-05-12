@@ -83,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 1
                 message: Can't read remotes configuration
@@ -114,7 +114,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -160,7 +160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -211,7 +211,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 200
                 message: Preferences updated
@@ -226,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -262,7 +262,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -302,7 +302,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 200
                 message: Preferences updated
@@ -317,7 +317,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -399,7 +399,7 @@ components:
           type: string
           enum: [resolution, boolean, integer]
           example: 'boolean'
-    ApiErrorResponse:
+    ApiResponse:
       type: object
       properties:
         code:
@@ -420,7 +420,7 @@ components:
     ApiErrorFormResponse:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ApiErrorResponse'
+        - $ref: '#/components/schemas/ApiResponse'
         - properties:
             errors:
               type: array

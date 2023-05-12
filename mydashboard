@@ -22,6 +22,7 @@ The aim is to give access for some tools from webbrowser
 from __future__ import print_function
 
 import os
+import re
 import ssl
 import sys
 import json
@@ -304,12 +305,17 @@ class MyConfig:
         try:
             self._user_prefs = json.loads(open(self.user_prefs_filename, "r").read())
         except:
-            self._user_prefs = {"error": "Loading user preferences file"}
+            error("Unable to load user preferences file: %s" % self.user_prefs_filename)
+            self._user_prefs = {}
+
 
     def save_user_prefs(self, data=None):
         if data is not None:
+            # merge with existing data
+            self.load_user_prefs()
+            self._user_prefs = merge_two_dicts(data, self._user_prefs)
             open(self.user_prefs_filename, "w", encoding="utf8").write(
-                json.dumps(data, indent=4, ensure_ascii=False)
+                json.dumps(self._user_prefs, indent=4, ensure_ascii=False)
             )
 
     def get_remotes(self, name=None):
@@ -643,6 +649,18 @@ def run_cmd(cmd_set, cmd_timeout=3, env=None):
 
     return [status, pid, msg]
 
+# Write a function to merge two dictionaries deep
+def merge_two_dicts(source, destination):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            merge_two_dicts(value, node)
+        else:
+            destination[key] = value
+
+    return destination
 
 def launch_gui(config):
     """Launch the gui"""
@@ -660,12 +678,12 @@ def launch_gui(config):
     return status
 
 
-def user_prefs(start_response, environ, config):
+def user_prefs_global(start_response, environ, config):
     """Returns user preferences
     if POST method is used, save new user prefs.
     """
 
-    errors = {"errors": [], "warnings": []}
+    errors = []
 
     if environ["REQUEST_METHOD"] == "POST":
         try:
@@ -674,25 +692,48 @@ def user_prefs(start_response, environ, config):
             request_body_size = 0
         try:
             sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))
-            # TODO:
-            # - check/validate input data
-            # - merge prefs before writing
+
+            # validate payload data before writing
+            # checks the following:
+            # - fullscreen is a boolean
+            # - resolution is a string with format "WxH"
+            if "fullscreen" in sent_prefs:
+                if not isinstance(sent_prefs["fullscreen"], bool):
+                    errors.append(
+                        {"fullscreen": "fullscreen must be a boolean"}
+                    )
+            if "resolution" in sent_prefs:
+                if not isinstance(sent_prefs["resolution"], str):
+                    errors.append(
+                        {"resolution": "resolution must be a string"}
+                    )
+                else:
+                    if not re.match(r"^\d+x\d+$", sent_prefs["resolution"]):
+                        errors.append(
+                            {
+                                "resolution": "resolution must be a string with format WxH"
+                            }
+                        )
+            new_prefs = {"global": sent_prefs}
             try:
-                config.save_user_prefs(sent_prefs)
+                config.save_user_prefs(new_prefs)
             except:
-                errors["errors"].append({"user preferences": "Can't write to file "})
+                errors.append({"user preferences": "Can't write to file "})
         except:
-            errors["errors"].append({"user preferences": "POST data are not valid"})
+            errors.append({"user preferences": "POST data are not valid"})
 
     config.load_user_prefs()
-    if "error" in config._user_prefs:
-        data = {}
-        errors["warnings"].append(config._user_prefs["error"])
+    if "global" in config._user_prefs:
+        data = config._user_prefs["global"]
     else:
-        data = config._user_prefs
+        data = {}
 
+    if errors:
+        status = 400
+    else:
+        status = 200
     data["errors"] = errors
-    return jsonapi(start_response, data)
+    return jsonapi(start_response, data, status)
 
 def menu_list(start_response, config):
     """Sends menu list to ui
@@ -893,8 +934,8 @@ def application(environ, start_response):
     elif environ["PATH_INFO"][0:13] == "/remote/info/":
         return remote_information(start_response, environ, config)
 
-    elif environ["PATH_INFO"] == "/user/prefs":
-        return user_prefs(start_response, environ, config)
+    elif environ["PATH_INFO"] == "/user/prefs/global":
+        return user_prefs_global(start_response, environ, config)
 
     else:
         # TODO: passer un message d'erreur

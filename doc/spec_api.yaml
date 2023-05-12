@@ -129,6 +129,7 @@ paths:
                     example: TS-01
                   config:
                     $ref: '#/components/schemas/RemoteConfig'
+                  # TODO: add protocol configuration
 components:
   schemas:
     Remote:

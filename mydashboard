@@ -390,12 +390,15 @@ def debug(msg):
 # -----------------------------------------------------------------
 
 
-def page(start_response, output, ctype="text/plain", status="200 OK"):
+def page(start_response, output, ctype="text/plain", status="200 OK", headers=[]):
     """
     Send output data using ctype and status.
     This is the low level tool used by other functions.
     """
     response_headers = [("Content-type", ctype), ("Content-Length", str(len(output)))]
+    for h in headers:
+        response_headers.append(h)
+
     # Use global config, but param should be better
     if config.dev_mode:
         response_headers.append(("Access-Control-Allow-Origin", "*"))

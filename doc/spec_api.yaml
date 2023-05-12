@@ -17,17 +17,14 @@ paths:
       summary: Get menu configuration
       description: Get menu configuration
       responses:
-        default:
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  menu:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MenuItem'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
   /remote/list:
     get:
       tags:
@@ -36,7 +33,7 @@ paths:
       description: List remote hosts
       operationId: remote_list
       responses:
-        default:
+        '200':
           description: successful operation
           content:
             application/json:
@@ -76,6 +73,59 @@ paths:
                             order: 2
                       vanuatu:
                         order: 2
+  '/remote/connect/{hostId}':
+    get:
+      tags:
+        - remote
+      summary: Connect to remote host
+      description: Connect to remote host
+      operationId: remote_connection
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+       '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoteConnect'
+  '/remote/info/{hostId}':
+    get:
+      tags:
+        - remote
+      summary: Get remote host information
+      description: Get remote host information
+      operationId: remote_information
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+       '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                    example: 5b820b52-f03f-11ed-a05b-0242ac120003
+                  name:
+                    type: string
+                    example: TS-01
+                  config:
+                    $ref: '#/components/schemas/RemoteConfig'
 components:
   schemas:
     Remote:
@@ -96,7 +146,7 @@ components:
     RemoteConfig:
       type: object
       properties:
-        protocol:
+        proto:
           type: string
           example: ssh
         site:

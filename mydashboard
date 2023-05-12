@@ -414,7 +414,7 @@ def static_page(start_response, document_root, filename, fullpath=False, ctype=N
             ctype = mimetypes.guess_type(real_file_path)[0]
 
         if config.dev_mode and filename in ("index.html"):
-            output = replaceDependencies(filename, output)
+            output = replace_dependencies(output)
     except:
         status = "500 INTERNAL ERROR"
         import traceback
@@ -454,7 +454,7 @@ def jsonapi(start_response, data):
     return page(start_response, wsgi_to_bytes(output), ctype=ctype, status=status)
 
 
-def replaceDependencies(filename, file_content):
+def replace_dependencies(file_content):
     """
     Intercepts and corrects javascript dependencies in index.html.
     """

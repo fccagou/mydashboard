@@ -183,6 +183,42 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PreferenceItem'
+  '/user/preferences/host/{hostId}':
+    get:
+      tags:
+        - user-config
+      summary: Get host preferences
+      description: Get host preferences
+      operationId: user_preferences_host
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PreferenceItem'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+              example:
+                code: 404
+                message: Host not found
 components:
   schemas:
     Remote:

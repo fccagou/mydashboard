@@ -156,6 +156,7 @@ class Remotes:
     Manage remotes downloaded by uri.
     Data are in json format.
     """
+
     def __init__(self, uri=None):
         self.remote_uri = uri
         self.remotes = {}
@@ -187,13 +188,37 @@ class Remotes:
         ordering = {}
         for site_name in sites_configuration:
             if "order" in sites_configuration[site_name]:
-                ordering[site_name] = { "order": sites_configuration[site_name]["order"], "domains": {} }
+                ordering[site_name] = {
+                    "order": sites_configuration[site_name]["order"],
+                    "domains": {},
+                }
                 for domain_name in sites_configuration[site_name]["domains"]:
-                    if "order" in sites_configuration[site_name]["domains"][domain_name]:
-                        ordering[site_name]["domains"][domain_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["order"], "groups": {} }
-                        for group_name in sites_configuration[site_name]["domains"][domain_name]["groups"]:
-                            if "order" in sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]:
-                                ordering[site_name]["domains"][domain_name]["groups"][group_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]["order"] }
+                    if (
+                        "order"
+                        in sites_configuration[site_name]["domains"][domain_name]
+                    ):
+                        ordering[site_name]["domains"][domain_name] = {
+                            "order": sites_configuration[site_name]["domains"][
+                                domain_name
+                            ]["order"],
+                            "groups": {},
+                        }
+                        for group_name in sites_configuration[site_name]["domains"][
+                            domain_name
+                        ]["groups"]:
+                            if (
+                                "order"
+                                in sites_configuration[site_name]["domains"][
+                                    domain_name
+                                ]["groups"][group_name]
+                            ):
+                                ordering[site_name]["domains"][domain_name]["groups"][
+                                    group_name
+                                ] = {
+                                    "order": sites_configuration[site_name]["domains"][
+                                        domain_name
+                                    ]["groups"][group_name]["order"]
+                                }
         return ordering
 
     @uri.setter
@@ -231,27 +256,55 @@ class Remotes:
             config = config | config_default[protocol]
         # Merge site configuration
         config_sites = self.defaults_configuration_by_site
-        if site in config_sites and "config_by_protocol" in config_sites[site] and protocol in config_sites[site]["config_by_protocol"]:
+        if (
+            site in config_sites
+            and "config_by_protocol" in config_sites[site]
+            and protocol in config_sites[site]["config_by_protocol"]
+        ):
             config = config | config_sites[site]["config_by_protocol"][protocol]
             # Merge domain configuration
-            if domain in config_sites[site]["domains"] and "config_by_protocol" in config_sites[site]["domains"][domain] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
-                config = config | config_sites[site]["domains"][domain]["config_by_protocol"][protocol]
+            if (
+                domain in config_sites[site]["domains"]
+                and "config_by_protocol" in config_sites[site]["domains"][domain]
+                and protocol
+                in config_sites[site]["domains"][domain]["config_by_protocol"]
+            ):
+                config = (
+                    config
+                    | config_sites[site]["domains"][domain]["config_by_protocol"][
+                        protocol
+                    ]
+                )
                 # Merge group configuration
-                if group in config_sites[site]["domains"][domain]["groups"] and "config_by_protocol" in config_sites[site]["domains"][domain]["groups"][group] and protocol in config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"]:
-                    config = config | config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"][protocol]
+                if (
+                    group in config_sites[site]["domains"][domain]["groups"]
+                    and "config_by_protocol"
+                    in config_sites[site]["domains"][domain]["groups"][group]
+                    and protocol
+                    in config_sites[site]["domains"][domain]["groups"][group][
+                        "config_by_protocol"
+                    ]
+                ):
+                    config = (
+                        config
+                        | config_sites[site]["domains"][domain]["groups"][group][
+                            "config_by_protocol"
+                        ][protocol]
+                    )
         # Merge host configuration
         if protocol in host["config"]:
             config = config | host["config"][protocol]
 
         return config
 
+
 # -----------------------------------------------------------------
 class MyConfig:
     """
     Class used to manage program configuration.
     """
-    def __init__(self):
 
+    def __init__(self):
         # Default web server listening port
         self.listening_port = 8080
 
@@ -331,21 +384,20 @@ class MyConfig:
 
         # applying user preférences.
         self.load_user_prefs()
-        if "hosts" in  self._user_prefs:
+        if "hosts" in self._user_prefs:
             for i, h in enumerate(filtered_hosts):
-                uuid=h["uuid"]
+                uuid = h["uuid"]
                 if uuid in self._user_prefs["hosts"]:
-                    current_host=self._user_prefs["hosts"][uuid]
-                    for key in ("alias", ):
+                    current_host = self._user_prefs["hosts"][uuid]
+                    for key in ("alias",):
                         if key in current_host:
                             filtered_hosts[i][key] = current_host[key]
                         else:
-                            warning(f"user-preferences: host {uuid} has not meta-data {key}")
+                            warning(
+                                f"user-preferences: host {uuid} has not meta-data {key}"
+                            )
 
-        return {
-            "hosts": filtered_hosts,
-            "ordering": self.remotes.get_formatting_order
-        }
+        return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
 
     def get_menu(self):
         try:
@@ -354,12 +406,15 @@ class MyConfig:
             error("Unable to load menu file: %s" % self.menu_conf)
             return {}
 
+
 # --------------------------------------------------------------
+
 
 class BadValueException(BaseException):
     """
     Exception sent when user try to set bad value format.
     """
+
     def __init__(self, value):
         self.value = value
 
@@ -392,10 +447,7 @@ class UserGlobalConf:
     If the check is ok, the value is set, else, a BadValueException is raised.
     """
 
-    defaults = {
-        "fullscreen": False,
-        "resolution": "1024x768"
-    }
+    defaults = {"fullscreen": False, "resolution": "1024x768"}
 
     def attributs():
         """
@@ -407,10 +459,7 @@ class UserGlobalConf:
         return isinstance(value, bool)
 
     def check_resolution(value):
-        return (
-            isinstance(value, str)
-            and re.match(r"^\d+x\d+$", value)
-        )
+        return isinstance(value, str) and re.match(r"^\d+x\d+$", value)
 
     def __init__(self):
         """
@@ -420,12 +469,11 @@ class UserGlobalConf:
             self.__dict__[f"_{a}"] = UserGlobalConf.defaults[a]
 
     def __str__(self):
-        str="UserGlobalConf: "
+        str = "UserGlobalConf: "
         for a in UserGlobalConf.attributs():
             attr = getattr(self, f"_{a}")
             str += f"_{a}={attr} "
         return str
-
 
     @property
     def resolution(self):
@@ -454,13 +502,13 @@ class UserGlobalConf:
         Format data for local storage.
         TODO: move to UserConf new class.
         """
-        data = { "global": {} }
+        data = {"global": {}}
         for a in UserGlobalConf.attributs():
             attr = getattr(self, f"_{a}")
             data["global"][a] = attr
         return data
 
-    def load(self,data):
+    def load(self, data):
         """
         Initialise class using data from user preference file.
         data is a dict.
@@ -500,8 +548,9 @@ class ApiJSON:
 
     The translation's done here.
     """
+
     def __init__(self):
-        self.version="1"
+        self.version = "1"
 
     def user_global_conf_fmt(ugc):
         """
@@ -513,14 +562,14 @@ class ApiJSON:
                     "name": "fullscreen",
                     "value": ugc.fullscreen,
                     "default": UserGlobalConf.defaults["fullscreen"],
-                    "type": "boolean"
+                    "type": "boolean",
                 },
                 {
                     "name": "resolution",
                     "value": ugc.resolution,
                     "default": UserGlobalConf.defaults["resolution"],
-                    "type": "resolution"
-                }
+                    "type": "resolution",
+                },
             ]
         }
 
@@ -538,8 +587,6 @@ class ApiJSON:
                 setattr(ugc, a_name, p["value"])
 
         return ugc
-
-
 
 
 config = MyConfig()
@@ -611,7 +658,9 @@ def page(start_response, output, ctype="text/plain", status="200 OK", headers=[]
     # Use global config, but param should be better
     if config.dev_mode:
         response_headers.append(("Access-Control-Allow-Origin", "*"))
-        response_headers.append(("Access-Control-Allow-Headers", "API-Key,accept, Content-Type"))
+        response_headers.append(
+            ("Access-Control-Allow-Headers", "API-Key,accept, Content-Type")
+        )
 
     start_response(status, response_headers)
     return [output]
@@ -647,6 +696,7 @@ def static_page(start_response, document_root, filename, fullpath=False, ctype=N
 
     return page(start_response, output, ctype=ctype, status=status)
 
+
 def get_http_code(code):
     if code == 200:
         return "200 OK"
@@ -656,6 +706,7 @@ def get_http_code(code):
         return "500 INTERNAL ERROR"
     else:
         return "%d ERROR" % code
+
 
 def jsonapi(start_response, data, code=200):
     """
@@ -734,7 +785,6 @@ Liste des actions possibles
 
 
 def service_status(start_response, config, environ):
-
     output = """
 Environment
 ===========
@@ -862,6 +912,7 @@ def run_cmd(cmd_set, cmd_timeout=3, env=None):
 
     return [status, pid, msg]
 
+
 # Write a function to merge two dictionaries deep
 def merge_two_dicts(source, destination):
     """Given two dicts, merge them into a new dict as a shallow copy."""
@@ -874,6 +925,7 @@ def merge_two_dicts(source, destination):
             destination[key] = value
 
     return destination
+
 
 def launch_gui(config):
     """Launch the gui"""
@@ -892,14 +944,12 @@ def launch_gui(config):
 
 
 def user_preferences_global(start_response, environ, config):
-    """Returns user preferences
-
-    """
+    """Returns user preferences"""
     errors = []
     if environ["REQUEST_METHOD"] == "POST":
         try:
             request_body_size = int(environ.get("CONTENT_LENGTH", 0))
-        except (ValueError):
+        except ValueError:
             request_body_size = 0
         try:
             # Get data sent by front
@@ -907,7 +957,7 @@ def user_preferences_global(start_response, environ, config):
                 json.loads(environ["wsgi.input"].read(request_body_size))
             )
             try:
-                 config.save_user_prefs(ugc.store_fmt())
+                config.save_user_prefs(ugc.store_fmt())
             except:
                 errors.append({"user preferences": "Can't write to file "})
         except:
@@ -915,7 +965,7 @@ def user_preferences_global(start_response, environ, config):
 
     # Merge with user values
     config.load_user_prefs()
-    ugc = UserGlobalConf ()
+    ugc = UserGlobalConf()
     ugc.load(config._user_prefs)
     data = ApiJSON.user_global_conf_fmt(ugc)
     data["errors"] = errors
@@ -925,6 +975,7 @@ def user_preferences_global(start_response, environ, config):
     else:
         status = 200
     return jsonapi(start_response, data, status)
+
 
 def menu_list(start_response, config):
     """Sends menu list to ui
@@ -946,6 +997,7 @@ def menu_list(start_response, config):
 
     return jsonapi(start_response, data)
 
+
 def remote_list(start_response, environ, config):
     """Sends remote hosts list
 
@@ -957,7 +1009,11 @@ def remote_list(start_response, environ, config):
     try:
         data = config.get_remotes()
     except:
-        return jsonapi(start_response, {"code": 1, "message": "Can't read remotes configuration"}, 500)
+        return jsonapi(
+            start_response,
+            {"code": 1, "message": "Can't read remotes configuration"},
+            500,
+        )
 
     # filter from api or externals data.
 
@@ -968,7 +1024,9 @@ def remote_connection(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][16:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
+        return jsonapi(
+            start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404
+        )
 
     remote_host = host["name"]
     site = host["config"]["site"]
@@ -1012,11 +1070,14 @@ def remote_connection(start_response, environ, config):
     exec_status["msg"] = status[2]
     return jsonapi(start_response, exec_status)
 
+
 def remote_information(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][13:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
+        return jsonapi(
+            start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404
+        )
 
     # Get merged configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
@@ -1029,11 +1090,11 @@ def remote_information(start_response, environ, config):
 
     return jsonapi(start_response, host)
 
+
 # -----------------------------------------------------------------
 # HTTP: WEB APP
 # -----------------------------------------------------------------
 def application(environ, start_response):
-
     global config
 
     if config.use_token:
@@ -1059,9 +1120,7 @@ def application(environ, start_response):
         return page(
             start_response,
             wsgi_to_bytes(""),
-            headers=[
-                ("Access-Control-Allow-Methods", "GET, POST")
-            ]
+            headers=[("Access-Control-Allow-Methods", "GET, POST")],
         )
 
     # Static files
@@ -1317,7 +1376,6 @@ def main(args, config):
 
 
 if __name__ == "__main__":
-
     # Process passed arguments.
     try:
         import argparse

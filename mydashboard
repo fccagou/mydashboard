@@ -298,115 +298,6 @@ class Remotes:
         return config
 
 
-# -----------------------------------------------------------------
-class MyConfig:
-    """
-    Class used to manage program configuration.
-    """
-
-    def __init__(self):
-        # Default web server listening port
-        self.listening_port = 8080
-
-        # For debuging
-        self.verbose = False
-
-        # Document Root for static web pages.
-        self.document_root = "/etc/mydashboard/html"
-
-        # ssl context for unverified site.
-        self.ssl_default_ctx = None
-
-        # Script used for rdp connection
-        self.remote_connection_script = "data/remote_connection.sh"
-
-        # Default remote_list for demo
-        self.remotes = Remotes(uri="data/remote.json")
-
-        # Default user preférence file name for demo
-        self.user_prefs_filename = "data/user-preferences.json"
-        self._user_prefs = {}
-
-        # Default menu for demo
-        self.menu_conf = "data/menu.json"
-
-        # debug flag
-        self.debuging = False
-
-        # default debug file
-        self.debug_filename = "~/mydash.log"
-
-        # COnfiguration file
-        self.conf_file = None
-
-        # Current token session
-        self.token = Token()
-
-        # Safe mode if token is used
-        use_token = True
-
-        # Web browser
-        self.webbrowser = "/usr/bin/firefox"
-
-        # Run gui when run the dashboard
-        self.run_gui = True
-
-        # Used to place JS development dependencies
-        self.dev_mode = False
-
-    @property
-    def remotelist_conf(self):
-        return self.remotes.uri
-
-    @remotelist_conf.setter
-    def remotelist_conf(self, uri=None):
-        self.remotes.uri = uri
-
-    def load_user_prefs(self):
-        try:
-            self._user_prefs = json.loads(open(self.user_prefs_filename, "r").read())
-        except:
-            error("Unable to load user preferences file: %s" % self.user_prefs_filename)
-            self._user_prefs = {}
-
-    def save_user_prefs(self, data=None):
-        if data is not None:
-            # merge with existing data
-            self.load_user_prefs()
-            self._user_prefs = merge_two_dicts(data, self._user_prefs)
-            open(self.user_prefs_filename, "w", encoding="utf8").write(
-                json.dumps(self._user_prefs, indent=4, ensure_ascii=False)
-            )
-
-    def get_remotes(self, name=None):
-        self.remotes.load()
-        filtered_hosts = list(self.remotes.search(host_name=name))
-
-        # applying user preférences.
-        self.load_user_prefs()
-        if "hosts" in self._user_prefs:
-            for i, h in enumerate(filtered_hosts):
-                uuid = h["uuid"]
-                if uuid in self._user_prefs["hosts"]:
-                    current_host = self._user_prefs["hosts"][uuid]
-                    for key in ("alias",):
-                        if key in current_host:
-                            filtered_hosts[i][key] = current_host[key]
-                        else:
-                            warning(
-                                f"user-preferences: host {uuid} has not meta-data {key}"
-                            )
-
-        return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
-
-    def get_menu(self):
-        try:
-            return json.loads(open(self.menu_conf, "r").read())
-        except:
-            error("Unable to load menu file: %s" % self.menu_conf)
-            return {}
-
-
 # --------------------------------------------------------------
 
 
@@ -517,6 +408,165 @@ class UserGlobalConf:
             for a in UserGlobalConf.attributs():
                 if a in data["global"]:
                     setattr(self, a, data["global"][a])
+
+
+# -----------------------------------------------------------------
+class UserPreferences:
+    """
+    Class used to nanage user preferences.
+    From UserPref filename in json format, load
+    - UserGlobalConf
+    - UserHostsConf
+
+    """
+
+    def __init__(self, filename):
+        self._ugc = UserGlobalConf()
+        self.load(filename)
+
+    @property
+    def globals(self):
+        return self._ugc
+
+    def load(self, filename=None):
+        if filename is not None:
+            self._filename = filename
+
+        try:
+            tmp = json.loads(open(self._filename, "r").read())
+            self._ugc.load(tmp)
+            if "hosts" in tmp:
+                self._hosts = tmp["hosts"]
+            else:
+                self._hosts = {}
+        except:
+            error("Unable to load user preferences file: %s" % self._filename)
+            self._hosts = {}
+
+    def save(self):
+        data = {
+            "global": {},
+            "hosts": self._hosts,
+        }
+        for a in UserGlobalConf.attributs():
+            data["global"][a] = getattr(self._ugc, a)
+
+        open(self._filename, "w", encoding="utf8").write(
+            json.dumps(data, indent=4, ensure_ascii=False)
+        )
+
+    def update_globals(self, ugc):
+        self._ugc = ugc
+
+    @property
+    def hosts(self):
+        return self._hosts
+
+# -----------------------------------------------------------------
+class MyConfig:
+    """
+    Class used to manage program configuration.
+    """
+
+    def __init__(self):
+        # Default web server listening port
+        self.listening_port = 8080
+
+        # For debuging
+        self.verbose = False
+
+        # Document Root for static web pages.
+        self.document_root = "/etc/mydashboard/html"
+
+        # ssl context for unverified site.
+        self.ssl_default_ctx = None
+
+        # Script used for rdp connection
+        self.remote_connection_script = "data/remote_connection.sh"
+
+        # Default remote_list for demo
+        self.remotes = Remotes(uri="data/remote.json")
+
+        # Default user preférence file name for demo
+        self.user_prefs_filename = "data/user-preferences.json"
+        self._user_prefs = UserPreferences(self.user_prefs_filename)
+
+        # Default menu for demo
+        self.menu_conf = "data/menu.json"
+
+        # debug flag
+        self.debuging = False
+
+        # default debug file
+        self.debug_filename = "~/mydash.log"
+
+        # COnfiguration file
+        self.conf_file = None
+
+        # Current token session
+        self.token = Token()
+
+        # Safe mode if token is used
+        use_token = True
+
+        # Web browser
+        self.webbrowser = "/usr/bin/firefox"
+
+        # Run gui when run the dashboard
+        self.run_gui = True
+
+        # Used to place JS development dependencies
+        self.dev_mode = False
+
+    @property
+    def remotelist_conf(self):
+        return self.remotes.uri
+
+    @remotelist_conf.setter
+    def remotelist_conf(self, uri=None):
+        self.remotes.uri = uri
+
+    def load_user_prefs(self):
+        self._user_prefs.load(self.user_prefs_filename)
+
+    def save_user_prefs(self):
+        self._user_prefs.save()
+
+    def get_remotes(self, name=None):
+        self.remotes.load()
+        filtered_hosts = list(self.remotes.search(host_name=name))
+
+        # applying user preférences.
+        # Quick un dirty, see map for better perfs.
+        self.load_user_prefs()
+        if len(self._user_prefs._hosts) > 0:
+            for i, h in enumerate(filtered_hosts):
+                uuid = h["uuid"]
+                if uuid in self._user_prefs._hosts:
+                    current_host = self._user_prefs._hosts[uuid]
+                    for key in ("alias",):
+                        if key in current_host:
+                            filtered_hosts[i][key] = current_host[key]
+                        else:
+                            warning(
+                                f"user-preferences: host {uuid} has not meta-data {key}"
+                            )
+
+        return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
+
+    def get_menu(self):
+        try:
+            return json.loads(open(self.menu_conf, "r").read())
+        except:
+            error("Unable to load menu file: %s" % self.menu_conf)
+            return {}
+
+    def update_globals(self, ugc):
+        self._user_prefs.update_globals(ugc)
+        self._user_prefs.save()
+
+    def user_globals(self):
+        return self._user_prefs.globals
 
 
 # ----------------------------------------------------------------------
@@ -957,17 +1007,19 @@ def user_preferences_global(start_response, environ, config):
                 json.loads(environ["wsgi.input"].read(request_body_size))
             )
             try:
-                config.save_user_prefs(ugc.store_fmt())
+                config.update_globals(ugc)
             except:
                 errors.append({"user preferences": "Can't write to file "})
+                import traceback
+
+                warning("INTERNAL ERROR: %s " % sys.exc_info()[0])
+                print("-" * 60)
+                traceback.print_exc(file=sys.stdout)
+                print("-" * 60)
         except:
             errors.append({"user preferences": "POST data are not valid"})
 
-    # Merge with user values
-    config.load_user_prefs()
-    ugc = UserGlobalConf()
-    ugc.load(config._user_prefs)
-    data = ApiJSON.user_global_conf_fmt(ugc)
+    data = ApiJSON.user_global_conf_fmt(config.user_globals())
     data["errors"] = errors
 
     if errors:

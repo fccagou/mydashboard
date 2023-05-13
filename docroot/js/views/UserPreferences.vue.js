@@ -34,13 +34,19 @@ const UserPreferencesComponent = {
 
             // parse the resolution into width and height
             for (let preference of this.preferences) {
+                if (preference.type !== "boolean" && preference.value === preference.default) {
+                    preference.value = "";
+                }
+
                 if (preference.type === 'resolution') {
                     // replace value with an object
-                    let resolution = preference.value.split('x');
-                    preference.value = {
-                        width: resolution[0],
-                        height: resolution[1],
-                    };
+                    if (preference.value) {
+                        let resolution = preference.value.split('x');
+                        preference.value = {
+                            width: resolution[0],
+                            height: resolution[1],
+                        };
+                    }
                     // replace default with an object
                     resolution = preference.default.split('x');
                     preference.default = {
@@ -53,7 +59,7 @@ const UserPreferencesComponent = {
         saveSettings() {
             // make a request to the server to update the user's preferences
 
-            let payload = this.preferences;
+            let payload = JSON.parse(JSON.stringify(this.preferences));
 
             // parse the resolution into a string
             for (let preference of payload) {
@@ -89,6 +95,7 @@ const UserPreferencesComponent = {
                     body: 'Your preferences have been saved successfully',
                     delaySecond: 2,
                 })
+                this.requestGlobalPreferences();
             }).catch((error) => {
                 this.$store.commit('addToast', {
                     type: 'warning',

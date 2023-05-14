@@ -533,26 +533,38 @@ class MyConfig:
         self._user_prefs.save()
 
     def get_remotes(self, name=None):
+        """
+        Get remotes host configuration and apply user prefs merge.
+        TODO: generate a list to avoid running merge on each call.
+              just re génerate the list when remotes or local prefs
+              changes
+        """
         self.remotes.load()
-        filtered_hosts = list(self.remotes.search(host_name=name))
-
-        # applying user preférences.
-        # Quick un dirty, see map for better perfs.
         self.load_user_prefs()
-        if len(self._user_prefs._hosts) > 0:
-            for i, h in enumerate(filtered_hosts):
-                uuid = h["uuid"]
-                if uuid in self._user_prefs._hosts:
-                    current_host = self._user_prefs._hosts[uuid]
-                    for key in ("alias",):
-                        if key in current_host:
-                            filtered_hosts[i][key] = current_host[key]
-                        else:
-                            warning(
-                                f"user-preferences: host {uuid} has not meta-data {key}"
-                            )
-
+        filtered_hosts =list(
+            map (
+                self._host_merge_with_user_pref,
+                self.remotes.search(host_name=name)
+            )
+        )
         return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
+
+    def _host_merge_with_user_pref(self, h):
+        """
+        Function used for mapping action.
+        """
+        uuid = h["uuid"]
+        if uuid in self.user_hosts():
+            current_host = self.user_hosts()[uuid]
+            for key in ("alias",):
+                if key in current_host:
+                    h[key] = current_host[key]
+                else:
+                    warning(
+                        f"user-preferences: host {uuid} has not meta-data {key}"
+                    )
+        return h
+
 
     def get_menu(self):
         try:
@@ -567,6 +579,10 @@ class MyConfig:
 
     def user_globals(self):
         return self._user_prefs.globals
+
+    def user_hosts(self):
+        return self._user_prefs.hosts
+
 
 
 # ----------------------------------------------------------------------

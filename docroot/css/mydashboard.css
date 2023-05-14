@@ -83,3 +83,7 @@ body {
 .cursor-wait {
     cursor: wait !important;
 }
+
+.bg-secondary-subtle {
+    background-color: #e2e3e5 !important;
+}

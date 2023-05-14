@@ -1,18 +1,25 @@
 const UserPreferencesComponent = {
     template: `
-    <div class="container bg-white shadow rounded-2xl d-flex flex-column px-4 py-4">
-        <h2 class="text-center">User Preferences</h2>
-        <p>This page allows you to set custom values that are global. This means that all hosts are affected by these settings.</p>
-        <div>
-            <preference-input
-                v-for="preference in preferences"
-                v-bind:key="preference.name"
-                v-bind:name="preference.name"
-                v-bind:type="preference.type"
-                v-bind:default="preference.default"
-                v-model:value="preference.value">
-            </preference-input>
-            <button class="btn btn-primary" @click="saveSettings">Save</button>
+    <div class="bg-white shadow rounded-2xl d-flex flex-column px-4 py-4">
+        <div class="text-center fw-bold fs-2 mb-4">User Preferences</div>
+        <div class="d-flex flex-row justify-content-evenly">
+            <div class="bg-secondary-subtle text-emphasis-dark rounded-2xl px-4 py-4">
+                <div class="fw-bold fs-3 mb-4">Global</div>
+                <div class="alert alert-light" role="alert">
+                    This box allows you to set custom values that are global. This means that all hosts are affected by these settings.
+                </div>
+                <div>
+                    <preference-input
+                        v-for="preference in preferences"
+                        v-bind:key="preference.name"
+                        v-bind:name="preference.name"
+                        v-bind:type="preference.type"
+                        v-bind:default="preference.default"
+                        v-model:value="preference.value">
+                    </preference-input>
+                    <button class="btn btn-primary" @click="saveSettings">Save</button>
+                </div>
+            </div>
         </div>
     </div>`,
     data() {

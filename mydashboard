@@ -43,6 +43,7 @@ import wsgiref.simple_server as server
 # but needed for error function
 config = None
 
+
 def log(msg):
     global config
     if config is not None and config.verbose:
@@ -383,7 +384,15 @@ class UserGlobalConf:
     If the check is ok, the value is set, else, a BadValueException is raised.
     """
 
-    defaults = {"fullscreen": False, "resolution": "1024x768"}
+    defaults = {
+        "fullscreen": {
+            "value": False,
+        },
+        "resolution": {
+            "value": "1024x768",
+            "type": "resolution",
+        },
+    }
 
     def attributs():
         """
@@ -402,7 +411,7 @@ class UserGlobalConf:
         By default, new object is initialized with defaults values.
         """
         for a in UserGlobalConf.attributs():
-            self.__dict__[f"_{a}"] = UserGlobalConf.defaults[a]
+            self.__dict__[f"_{a}"] = UserGlobalConf.defaults[a]["value"]
 
     def __str__(self):
         str = "UserGlobalConf: "
@@ -507,6 +516,7 @@ class UserPreferences:
     def hosts(self):
         return self._hosts
 
+
 # -----------------------------------------------------------------
 class MyConfig:
     """
@@ -586,11 +596,8 @@ class MyConfig:
         """
         self.remotes.load()
         self.load_user_prefs()
-        filtered_hosts =list(
-            map (
-                self._host_merge_with_user_pref,
-                self.remotes.search(host_name=name)
-            )
+        filtered_hosts = list(
+            map(self._host_merge_with_user_pref, self.remotes.search(host_name=name))
         )
         return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
 
@@ -605,11 +612,8 @@ class MyConfig:
                 if key in current_host:
                     h[key] = current_host[key]
                 else:
-                    warning(
-                        f"user-preferences: host {uuid} has not meta-data {key}"
-                    )
+                    warning(f"user-preferences: host {uuid} has not meta-data {key}")
         return h
-
 
     def get_menu(self):
         try:
@@ -627,7 +631,6 @@ class MyConfig:
 
     def user_hosts(self):
         return self._user_prefs.hosts
-
 
 
 # ----------------------------------------------------------------------
@@ -663,6 +666,12 @@ class ApiJSON:
     def __init__(self):
         self.version = "1"
 
+    def typeof(v):
+        if "type" in v:
+            return v["type"]
+
+        return type(v["value"]).__name__
+
     def user_global_conf_fmt(ugc):
         """
         Transform UserGlobalConf in json format sent to front.
@@ -670,17 +679,12 @@ class ApiJSON:
         return {
             "preferences": [
                 {
-                    "name": "fullscreen",
-                    "value": ugc.fullscreen,
-                    "default": UserGlobalConf.defaults["fullscreen"],
-                    "type": "boolean",
-                },
-                {
-                    "name": "resolution",
-                    "value": ugc.resolution,
-                    "default": UserGlobalConf.defaults["resolution"],
-                    "type": "resolution",
-                },
+                    "name": a,
+                    "value": getattr(ugc, a),
+                    "default": UserGlobalConf.defaults[a]["value"],
+                    "type": ApiJSON.typeof(UserGlobalConf.defaults[a]),
+                }
+                for a in UserGlobalConf.attributs()
             ]
         }
 

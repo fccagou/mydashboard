@@ -397,7 +397,7 @@ components:
           example: 'default_value'
         type:
           type: string
-          enum: [resolution, boolean, integer]
+          enum: [resolution, boolean, integer, string, bool, int, str]
           example: 'boolean'
     ApiResponse:
       type: object

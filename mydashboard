@@ -35,6 +35,51 @@ import mimetypes
 import subprocess
 import wsgiref.simple_server as server
 
+# -----------------------------------------------------------------
+# Informational functions.
+# -----------------------------------------------------------------
+
+# Will be redefined as MyConfig next
+# but needed for error function
+config = None
+
+def log(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[+] - ", msg)
+    else:
+        pass
+
+
+def info(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[i] - ", msg)
+    else:
+        pass
+
+
+def warning(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[!] - ", msg)
+    else:
+        pass
+
+
+def error(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[-] - ", msg)
+    else:
+        pass
+
+
+def debug(msg):
+    global config
+    if config is not None and config.debuging:
+        logging.debug(msg)
+
 
 # -----------------------------------------------------------------
 #  python wrapper
@@ -663,48 +708,6 @@ javascript_dependencies = {
     "/js/vuex.global.prod.min.js": "/js/vuex.global.min.js",
     "/js/vue-router.global.prod.min.js": "/js/vue-router.global.min.js",
 }
-
-# -----------------------------------------------------------------
-# Informational functions.
-# -----------------------------------------------------------------
-
-
-def log(msg):
-    global config
-    if config.verbose:
-        print("[+] - ", msg)
-    else:
-        pass
-
-
-def info(msg):
-    global config
-    if config.verbose:
-        print("[i] - ", msg)
-    else:
-        pass
-
-
-def warning(msg):
-    global config
-    if config.verbose:
-        print("[!] - ", msg)
-    else:
-        pass
-
-
-def error(msg):
-    global config
-    if config.verbose:
-        print("[-] - ", msg)
-    else:
-        pass
-
-
-def debug(msg):
-    global config
-    if config.debuging:
-        logging.debug(msg)
 
 
 # -----------------------------------------------------------------

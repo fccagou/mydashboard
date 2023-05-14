@@ -9,7 +9,7 @@ const SiteComponent = {
     template: `
     <div class="bg-white shadow rounded-2xl site-width">
         <div class="d-flex align-items-center px-3 py-2 bg-site rounded-top-2xl border-bottom border-2">
-            <img class="site-icon" src="/img/computer.svg" /> <span class="font-bold">{{ name }}</span>
+            <img class="site-icon" src="/img/computer.svg" /> <span class="fw-bold">{{ name }}</span>
         </div>
         <div class="px-5 py-3 d-flex flex-wrap gap-5 justify-content-evenly">
             <domain v-for="domain in domains_ordered" :key="name + '-' + domain.name"

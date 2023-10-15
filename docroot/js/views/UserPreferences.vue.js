@@ -41,7 +41,7 @@ const UserPreferencesComponent = {
 
             // parse the resolution into width and height
             for (let preference of this.preferences) {
-                if (preference.type !== "boolean" && preference.value === preference.default) {
+                if (preference.type !== "bool" && preference.value === preference.default) {
                     preference.value = "";
                 }
 

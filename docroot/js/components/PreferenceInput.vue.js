@@ -2,7 +2,7 @@ const PreferenceInputComponent = {
   props: ['value', 'name', 'type', 'default'],
   emits: ['update:value'],
   template: `
-    <div v-if="type === 'boolean'" class="form-check form-switch user-select-none">
+    <div v-if="type === 'bool'" class="form-check form-switch user-select-none">
       <input class="form-check-input" type="checkbox" id="switch-{{ name }}" :checked="value" @input="updateBoolean">
       <label class="form-check-label" for="switch-{{ name }}">{{ formattedName }}</label>
       </div>

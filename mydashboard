@@ -392,6 +392,9 @@ class UserGlobalConf:
             "value": "1024x768",
             "type": "resolution",
         },
+        "dynamic_resolution": {
+            "value": True,
+        },
     }
 
     def attributs():
@@ -405,6 +408,9 @@ class UserGlobalConf:
 
     def check_resolution(value):
         return isinstance(value, str) and re.match(r"^\d+x\d+$", value)
+
+    def check_dynamic_resolution(value):
+        return isinstance(value, bool)
 
     def __init__(self):
         """
@@ -441,6 +447,17 @@ class UserGlobalConf:
             self._fullscreen = full
         else:
             raise BadValueException(f"fullscreen bad value: {full} not Boolean")
+
+    @property
+    def dynamic_resolution(self):
+        return self._dynamic_resolution
+
+    @dynamic_resolution.setter
+    def dynamic_resolution(self, full):
+        if UserGlobalConf.check_dynamic_resolution(full):
+            self._dynamic_resolution = full
+        else:
+            raise BadValueException(f"dynamic_resolution bad value: {full} not Boolean")
 
     def store_fmt(self):
         """

@@ -1142,7 +1142,7 @@ def remote_connection(start_response, environ, config):
     # Get merged protocol configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
     for k, v in connection_configuration.items():
-        env[f'PROTOCOL_{proto.upper()}_{k.upper()}'] = v
+        env[f'PROTOCOL_{proto.upper()}_{k.upper()}'] = str(v)
 
     exec_status = {}
     exec_status["cmd"] = config.remote_connection_script

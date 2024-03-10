@@ -336,7 +336,7 @@ SHARE=${HOME}/Share/${DOMAIN}
 
 
 # The default is full screen
-[ -z "${SCREEN_RESOLUTION}" ] &&  SCREEN_RESOLUTION="${fullscreen_param}"
+[ -z "${SCREEN_RESOLUTION}" ] && SCREEN_RESOLUTION="${fullscreen_param}"
 
 # ---------------------------------------------------------------------
 # Run it
@@ -352,7 +352,7 @@ then
 		${SCREEN_RESOLUTION}
 		${SEC}
 		${title_param}"${SITE} ${DOMAIN} ${GROUP}"
-		${share_param}Share:${SHARE}
+		${share_param}Share,${SHARE}
 		${clipboard}
 		${host_param}${REMOTE_HOST}
 EOF_DEBUG
@@ -364,7 +364,7 @@ else
 		${SCREEN_RESOLUTION} \
 		${SEC} \
 		${title_param}"${SITE} ${DOMAIN} ${GROUP}"  \
-		${share_param}Share:${SHARE} \
+		${share_param}Share,${SHARE} \
 		${clipboard} \
 		${host_param}${REMOTE_HOST}
 

@@ -1,36 +1,65 @@
-const UserPreferencesComponent = {
+const HostCustomModal = {
+    props: [
+        'host_uuid',
+        'trigger_show_modal'
+    ],
     template: `
-    <div class="bg-white shadow rounded-2xl d-flex flex-column px-4 py-4">
-        <div class="text-center fw-bold fs-2 mb-4">User Preferences</div>
-        <div class="d-flex flex-row justify-content-evenly">
-            <div class="bg-secondary-subtle text-emphasis-dark rounded-2xl px-4 py-4">
-                <div class="fw-bold fs-3 mb-4">Global</div>
-                <div class="alert alert-light" role="alert">
-                    This box allows you to set custom values that are global. This means that all hosts are affected by these settings.
-                </div>
-                <div>
-                    <preference-input
-                        v-for="preference in preferences"
-                        v-bind:key="preference.name"
-                        v-bind:name="preference.name"
-                        v-bind:type="preference.type"
-                        v-bind:default="preference.default"
-                        v-model:value="preference.value">
-                    </preference-input>
-                    <button class="btn btn-primary" @click="saveSettings">Save</button>
-                </div>
+    <div ref="modal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Customization of {{ hostname }}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" v-if="hostDetailled">
+                <preference-input
+                    v-for="preference in preferences"
+                    v-bind:key="preference.name"
+                    v-bind:name="preference.name"
+                    v-bind:type="preference.type"
+                    v-bind:default="preference.default"
+                    v-model:value="preference.value">
+                </preference-input>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+            </div>
             </div>
         </div>
     </div>`,
     data() {
         return {
+            loading: false,
+            modalInstance: undefined,
+            hostDetailled: undefined,
             preferences: {},
         }
     },
-    beforeMount() {
-        this.requestGlobalPreferences();
+    mounted() {
+        // Set modal
+        const modal = this.$refs["modal"];
+        this.modalInstance = new bootstrap.Modal(modal);
     },
     methods: {
+        loadDetailledHost() {
+            axios.get(`/remote/info/${this.host_uuid}`).then((response) => {
+                this.hostDetailled = response.data;
+            }).catch((error) => {
+                this.$store.commit('addToast', {
+                    type: 'warning',
+                    title: 'Unable to contact API',
+                    body: 'Impossible to retrieve information of the available hosts',
+                    delaySecond: 10,
+                })
+            });
+        },
         requestGlobalPreferences() {
             axios.get('/user/preferences/global').then((response) => {
                 this.updateSettings(response.data);
@@ -113,4 +142,25 @@ const UserPreferencesComponent = {
             })
         },
     },
+    computed: {
+        disableButton: function () {
+            return !this.loading && this.lock;
+        },
+        hostname: function () {
+            if (this.hostDetailled === undefined) {
+                return "Loading...";
+            }
+            if (this.hostDetailled.hasOwnProperty("alias")) {
+                return this.hostDetailled.alias;
+            }
+            return this.hostDetailled.name;
+        }
+    },
+    watch: {
+        trigger_show_modal(newVal, oldVal) {
+            this.modalInstance.show();
+            this.loadDetailledHost();
+            this.requestGlobalPreferences();
+        }
+    }
 };

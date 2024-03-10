@@ -26,12 +26,14 @@ app.component('not-found', NotFoundComponent);
 // Components
 app.component('toasts', ToastsComponent);
 app.component('toast', ToastComponent);
+app.component('preference-input', PreferenceInputComponent);
 app.component('nav-bar', NavBarComponent);
 app.component('site', SiteComponent);
 app.component('domain', DomainComponent);
 app.component('host', HostComponent);
 app.component('host-menu', HostMenuComponent);
 app.component('host-information-modal', HostInformationModal);
+app.component('host-custom-modal', HostCustomModal);
 
 const clickOutside = {
     beforeMount: (el, binding) => {

@@ -9,6 +9,8 @@ tags:
     description: Operations about remote host
   - name: menu
     description: Operations about menu
+  - name: user-config
+    description: Operations about user configuration
 paths:
   /conf/menu:
     get:
@@ -81,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 1
                 message: Can't read remotes configuration
@@ -112,7 +114,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -158,7 +160,164 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 404
+                message: Host not found
+  '/user/preferences/global':
+    get:
+      tags:
+        - user-config
+      summary: Get global preferences
+      description: Get global preferences
+      operationId: local_preferences_global
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PreferenceItem'
+    post:
+      tags:
+        - user-config
+      summary: Set global preferences
+      description: Set global preferences
+      operationId: local_preferences_global_set
+      requestBody:
+        description: Preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: array
+                  items:
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 200
+                message: Preferences updated
+        '400':
+          description: Invalid preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorFormResponse'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 404
+                message: Host not found
+  '/user/preferences/host/{hostId}':
+    get:
+      tags:
+        - user-config
+      summary: Get host preferences
+      description: Get host preferences
+      operationId: user_preferences_host
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PreferenceItem'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 404
+                message: Host not found
+    post:
+      tags:
+        - user-config
+      summary: Set host preferences
+      description: Set host preferences
+      operationId: user_preferences_host_set
+      parameters:
+        - name: hostId
+          in: path
+          description: Host ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: array
+                  items:
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 200
+                message: Preferences updated
+        '400':
+          description: Invalid preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorFormResponse'
+        '404':
+          description: Remote host not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
               example:
                 code: 404
                 message: Host not found
@@ -224,7 +383,23 @@ components:
         msg:
           type: string
           description: Connection message
-    ApiErrorResponse:
+    PreferenceItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'my_pref'
+        value:
+          type: string
+          example: 'my_value'
+        default:
+          type: string
+          example: 'default_value'
+        type:
+          type: string
+          enum: [resolution, boolean, integer, string, bool, int, str]
+          example: 'boolean'
+    ApiResponse:
       type: object
       properties:
         code:
@@ -245,7 +420,7 @@ components:
     ApiErrorFormResponse:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ApiErrorResponse'
+        - $ref: '#/components/schemas/ApiResponse'
         - properties:
             errors:
               type: array

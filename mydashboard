@@ -22,6 +22,7 @@ The aim is to give access for some tools from webbrowser
 from __future__ import print_function
 
 import os
+import re
 import ssl
 import sys
 import json
@@ -33,6 +34,52 @@ import logging
 import mimetypes
 import subprocess
 import wsgiref.simple_server as server
+
+# -----------------------------------------------------------------
+# Informational functions.
+# -----------------------------------------------------------------
+
+# Will be redefined as MyConfig next
+# but needed for error function
+config = None
+
+
+def log(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[+] - ", msg)
+    else:
+        pass
+
+
+def info(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[i] - ", msg)
+    else:
+        pass
+
+
+def warning(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[!] - ", msg)
+    else:
+        pass
+
+
+def error(msg):
+    global config
+    if config is not None and config.verbose:
+        print("[-] - ", msg)
+    else:
+        pass
+
+
+def debug(msg):
+    global config
+    if config is not None and config.debuging:
+        logging.debug(msg)
 
 
 # -----------------------------------------------------------------
@@ -151,6 +198,11 @@ class Token:
 
 
 class Remotes:
+    """
+    Manage remotes downloaded by uri.
+    Data are in json format.
+    """
+
     def __init__(self, uri=None):
         self.remote_uri = uri
         self.remotes = {}
@@ -182,13 +234,37 @@ class Remotes:
         ordering = {}
         for site_name in sites_configuration:
             if "order" in sites_configuration[site_name]:
-                ordering[site_name] = { "order": sites_configuration[site_name]["order"], "domains": {} }
+                ordering[site_name] = {
+                    "order": sites_configuration[site_name]["order"],
+                    "domains": {},
+                }
                 for domain_name in sites_configuration[site_name]["domains"]:
-                    if "order" in sites_configuration[site_name]["domains"][domain_name]:
-                        ordering[site_name]["domains"][domain_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["order"], "groups": {} }
-                        for group_name in sites_configuration[site_name]["domains"][domain_name]["groups"]:
-                            if "order" in sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]:
-                                ordering[site_name]["domains"][domain_name]["groups"][group_name] = { "order": sites_configuration[site_name]["domains"][domain_name]["groups"][group_name]["order"] }
+                    if (
+                        "order"
+                        in sites_configuration[site_name]["domains"][domain_name]
+                    ):
+                        ordering[site_name]["domains"][domain_name] = {
+                            "order": sites_configuration[site_name]["domains"][
+                                domain_name
+                            ]["order"],
+                            "groups": {},
+                        }
+                        for group_name in sites_configuration[site_name]["domains"][
+                            domain_name
+                        ]["groups"]:
+                            if (
+                                "order"
+                                in sites_configuration[site_name]["domains"][
+                                    domain_name
+                                ]["groups"][group_name]
+                            ):
+                                ordering[site_name]["domains"][domain_name]["groups"][
+                                    group_name
+                                ] = {
+                                    "order": sites_configuration[site_name]["domains"][
+                                        domain_name
+                                    ]["groups"][group_name]["order"]
+                                }
         return ordering
 
     @uri.setter
@@ -226,23 +302,245 @@ class Remotes:
             config = config | config_default[protocol]
         # Merge site configuration
         config_sites = self.defaults_configuration_by_site
-        if site in config_sites and "config_by_protocol" in config_sites[site] and protocol in config_sites[site]["config_by_protocol"]:
+        if (
+            site in config_sites
+            and "config_by_protocol" in config_sites[site]
+            and protocol in config_sites[site]["config_by_protocol"]
+        ):
             config = config | config_sites[site]["config_by_protocol"][protocol]
             # Merge domain configuration
-            if domain in config_sites[site]["domains"] and "config_by_protocol" in config_sites[site]["domains"][domain] and protocol in config_sites[site]["domains"][domain]["config_by_protocol"]:
-                config = config | config_sites[site]["domains"][domain]["config_by_protocol"][protocol]
+            if (
+                domain in config_sites[site]["domains"]
+                and "config_by_protocol" in config_sites[site]["domains"][domain]
+                and protocol
+                in config_sites[site]["domains"][domain]["config_by_protocol"]
+            ):
+                config = (
+                    config
+                    | config_sites[site]["domains"][domain]["config_by_protocol"][
+                        protocol
+                    ]
+                )
                 # Merge group configuration
-                if group in config_sites[site]["domains"][domain]["groups"] and "config_by_protocol" in config_sites[site]["domains"][domain]["groups"][group] and protocol in config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"]:
-                    config = config | config_sites[site]["domains"][domain]["groups"][group]["config_by_protocol"][protocol]
+                if (
+                    group in config_sites[site]["domains"][domain]["groups"]
+                    and "config_by_protocol"
+                    in config_sites[site]["domains"][domain]["groups"][group]
+                    and protocol
+                    in config_sites[site]["domains"][domain]["groups"][group][
+                        "config_by_protocol"
+                    ]
+                ):
+                    config = (
+                        config
+                        | config_sites[site]["domains"][domain]["groups"][group][
+                            "config_by_protocol"
+                        ][protocol]
+                    )
         # Merge host configuration
         if protocol in host["config"]:
             config = config | host["config"][protocol]
 
         return config
 
-class MyConfig:
-    def __init__(self):
 
+# --------------------------------------------------------------
+
+
+class BadValueException(BaseException):
+    """
+    Exception sent when user try to set bad value format.
+    """
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+# --------------------------------------------------------------
+class UserGlobalConf:
+    """
+    Class used to manage user global configuration in local user configuration
+    file.
+
+    Data are store in config.user_prefs_filename in JSON format in global dict:
+    {
+     ...
+         "global": {
+             "name1": "value1",
+             "name2": "value2",
+             ...
+         }
+     ...
+    }
+
+    defaults dict contain all managed data names and associated default values.
+
+    For each data, the class contains a getter and a setter. the setter check
+    the format of new value using check_{att_name} function.
+
+    If the check is ok, the value is set, else, a BadValueException is raised.
+    """
+
+    defaults = {
+        "fullscreen": {
+            "value": False,
+        },
+        "resolution": {
+            "value": "1024x768",
+            "type": "resolution",
+        },
+        "dynamic_resolution": {
+            "value": True,
+        },
+    }
+
+    def attributs():
+        """
+        Returns all names of managed data.
+        """
+        return UserGlobalConf.defaults.keys()
+
+    def check_fullscreen(value):
+        return isinstance(value, bool)
+
+    def check_resolution(value):
+        return isinstance(value, str) and re.match(r"^\d+x\d+$", value)
+
+    def check_dynamic_resolution(value):
+        return isinstance(value, bool)
+
+    def __init__(self):
+        """
+        By default, new object is initialized with defaults values.
+        """
+        for a in UserGlobalConf.attributs():
+            self.__dict__[f"_{a}"] = UserGlobalConf.defaults[a]["value"]
+
+    def __str__(self):
+        str = "UserGlobalConf: "
+        for a in UserGlobalConf.attributs():
+            attr = getattr(self, f"_{a}")
+            str += f"_{a}={attr} "
+        return str
+
+    @property
+    def resolution(self):
+        return self._resolution
+
+    @resolution.setter
+    def resolution(self, res):
+        if UserGlobalConf.check_resolution(res):
+            self._resolution = res
+        else:
+            raise BadValueException(f"resolution bad value: {res}")
+
+    @property
+    def fullscreen(self):
+        return self._fullscreen
+
+    @fullscreen.setter
+    def fullscreen(self, full):
+        if UserGlobalConf.check_fullscreen(full):
+            self._fullscreen = full
+        else:
+            raise BadValueException(f"fullscreen bad value: {full} not Boolean")
+
+    @property
+    def dynamic_resolution(self):
+        return self._dynamic_resolution
+
+    @dynamic_resolution.setter
+    def dynamic_resolution(self, full):
+        if UserGlobalConf.check_dynamic_resolution(full):
+            self._dynamic_resolution = full
+        else:
+            raise BadValueException(f"dynamic_resolution bad value: {full} not Boolean")
+
+    def store_fmt(self):
+        """
+        Format data for local storage.
+        TODO: move to UserConf new class.
+        """
+        data = {"global": {}}
+        for a in UserGlobalConf.attributs():
+            attr = getattr(self, f"_{a}")
+            data["global"][a] = attr
+        return data
+
+    def load(self, data):
+        """
+        Initialise class using data from user preference file.
+        data is a dict.
+        """
+        if "global" in data:
+            for a in UserGlobalConf.attributs():
+                if a in data["global"]:
+                    setattr(self, a, data["global"][a])
+
+
+# -----------------------------------------------------------------
+class UserPreferences:
+    """
+    Class used to nanage user preferences.
+    From UserPref filename in json format, load
+    - UserGlobalConf
+    - UserHostsConf
+
+    """
+
+    def __init__(self, filename):
+        self._ugc = UserGlobalConf()
+        self.load(filename)
+
+    @property
+    def globals(self):
+        return self._ugc
+
+    def load(self, filename=None):
+        if filename is not None:
+            self._filename = filename
+
+        try:
+            tmp = json.loads(open(self._filename, "r").read())
+            self._ugc.load(tmp)
+            if "hosts" in tmp:
+                self._hosts = tmp["hosts"]
+            else:
+                self._hosts = {}
+        except:
+            error("Unable to load user preferences file: %s" % self._filename)
+            self._hosts = {}
+
+    def save(self):
+        data = {
+            "global": {},
+            "hosts": self._hosts,
+        }
+        for a in UserGlobalConf.attributs():
+            data["global"][a] = getattr(self._ugc, a)
+
+        open(self._filename, "w", encoding="utf8").write(
+            json.dumps(data, indent=4, ensure_ascii=False)
+        )
+
+    def update_globals(self, ugc):
+        self._ugc = ugc
+
+    @property
+    def hosts(self):
+        return self._hosts
+
+
+# -----------------------------------------------------------------
+class MyConfig:
+    """
+    Class used to manage program configuration.
+    """
+
+    def __init__(self):
         # Default web server listening port
         self.listening_port = 8080
 
@@ -263,7 +561,7 @@ class MyConfig:
 
         # Default user preférence file name for demo
         self.user_prefs_filename = "data/user-preferences.json"
-        self._user_prefs = {}
+        self._user_prefs = UserPreferences(self.user_prefs_filename)
 
         # Default menu for demo
         self.menu_conf = "data/menu.json"
@@ -281,7 +579,7 @@ class MyConfig:
         self.token = Token()
 
         # Safe mode if token is used
-        use_token = True
+        self.use_token = True
 
         # Web browser
         self.webbrowser = "/usr/bin/firefox"
@@ -301,23 +599,38 @@ class MyConfig:
         self.remotes.uri = uri
 
     def load_user_prefs(self):
-        try:
-            self._user_prefs = json.loads(open(self.user_prefs_filename, "r").read())
-        except:
-            self._user_prefs = {"error": "Loading user preferences file"}
+        self._user_prefs.load(self.user_prefs_filename)
 
-    def save_user_prefs(self, data=None):
-        if data is not None:
-            open(self.user_prefs_filename, "w", encoding="utf8").write(
-                json.dumps(data, indent=4, ensure_ascii=False)
-            )
+    def save_user_prefs(self):
+        self._user_prefs.save()
 
     def get_remotes(self, name=None):
+        """
+        Get remotes host configuration and apply user prefs merge.
+        TODO: generate a list to avoid running merge on each call.
+              just re génerate the list when remotes or local prefs
+              changes
+        """
         self.remotes.load()
-        return {
-            "hosts": list(self.remotes.search(host_name=name)),
-            "ordering": self.remotes.get_formatting_order
-        }
+        self.load_user_prefs()
+        filtered_hosts = list(
+            map(self._host_merge_with_user_pref, self.remotes.search(host_name=name))
+        )
+        return {"hosts": filtered_hosts, "ordering": self.remotes.get_formatting_order}
+
+    def _host_merge_with_user_pref(self, h):
+        """
+        Function used for mapping action.
+        """
+        uuid = h["uuid"]
+        if uuid in self.user_hosts():
+            current_host = self.user_hosts()[uuid]
+            for key in ("alias",):
+                if key in current_host:
+                    h[key] = current_host[key]
+                else:
+                    warning(f"user-preferences: host {uuid} has not meta-data {key}")
+        return h
 
     def get_menu(self):
         try:
@@ -325,6 +638,87 @@ class MyConfig:
         except:
             error("Unable to load menu file: %s" % self.menu_conf)
             return {}
+
+    def update_globals(self, ugc):
+        self._user_prefs.update_globals(ugc)
+        self._user_prefs.save()
+
+    def user_globals(self):
+        return self._user_prefs.globals
+
+    def user_hosts(self):
+        return self._user_prefs.hosts
+
+
+# ----------------------------------------------------------------------
+class ApiJSON:
+    """
+    Class used to manage data format for api exchange.
+    IHM for example.
+
+    Sent data is an array of couple name/value :
+       {
+           "preferences": [
+               {
+                   "name": "key1",
+                   "value": "val1"
+               },
+               ....
+           ]
+       }
+
+    In user configuration file, data are stored in a dict form:
+       {
+           "global": [
+               {
+                   "key1": "val1",
+                   ....
+               }
+           ]
+       }
+
+    The translation's done here.
+    """
+
+    def __init__(self):
+        self.version = "1"
+
+    def typeof(v):
+        if "type" in v:
+            return v["type"]
+
+        return type(v["value"]).__name__
+
+    def user_global_conf_fmt(ugc):
+        """
+        Transform UserGlobalConf in json format sent to front.
+        """
+        return {
+            "preferences": [
+                {
+                    "name": a,
+                    "value": getattr(ugc, a),
+                    "default": UserGlobalConf.defaults[a]["value"],
+                    "type": ApiJSON.typeof(UserGlobalConf.defaults[a]),
+                }
+                for a in UserGlobalConf.attributs()
+            ]
+        }
+
+    def user_global_conf(data):
+        """
+        Transform sent json data into UserGlobalConf object.
+        """
+        if not isinstance(data, dict):
+            raise BadValueException("data is not a dict")
+
+        ugc = UserGlobalConf()
+        for p in data["preferences"]:
+            a_name = p["name"]
+            if a_name in UserGlobalConf.attributs():
+                setattr(ugc, a_name, p["value"])
+
+        return ugc
 
 
 config = MyConfig()
@@ -336,63 +730,27 @@ javascript_dependencies = {
     "/js/vue-router.global.prod.min.js": "/js/vue-router.global.min.js",
 }
 
-# -----------------------------------------------------------------
-# Informational functions.
-# -----------------------------------------------------------------
-
-
-def log(msg):
-    global config
-    if config.verbose:
-        print("[+] - ", msg)
-    else:
-        pass
-
-
-def info(msg):
-    global config
-    if config.verbose:
-        print("[i] - ", msg)
-    else:
-        pass
-
-
-def warning(msg):
-    global config
-    if config.verbose:
-        print("[!] - ", msg)
-    else:
-        pass
-
-
-def error(msg):
-    global config
-    if config.verbose:
-        print("[-] - ", msg)
-    else:
-        pass
-
-
-def debug(msg):
-    global config
-    if config.debuging:
-        logging.debug(msg)
-
 
 # -----------------------------------------------------------------
 # HTTP: default page showing all notifiers status.
 # -----------------------------------------------------------------
 
 
-def page(start_response, output, ctype="text/plain", status="200 OK"):
+def page(start_response, output, ctype="text/plain", status="200 OK", headers=[]):
     """
     Send output data using ctype and status.
     This is the low level tool used by other functions.
     """
     response_headers = [("Content-type", ctype), ("Content-Length", str(len(output)))]
+    for h in headers:
+        response_headers.append(h)
+
     # Use global config, but param should be better
     if config.dev_mode:
         response_headers.append(("Access-Control-Allow-Origin", "*"))
+        response_headers.append(
+            ("Access-Control-Allow-Headers", "API-Key,accept, Content-Type")
+        )
 
     start_response(status, response_headers)
     return [output]
@@ -428,6 +786,7 @@ def static_page(start_response, document_root, filename, fullpath=False, ctype=N
 
     return page(start_response, output, ctype=ctype, status=status)
 
+
 def get_http_code(code):
     if code == 200:
         return "200 OK"
@@ -437,6 +796,7 @@ def get_http_code(code):
         return "500 INTERNAL ERROR"
     else:
         return "%d ERROR" % code
+
 
 def jsonapi(start_response, data, code=200):
     """
@@ -515,7 +875,6 @@ Liste des actions possibles
 
 
 def service_status(start_response, config, environ):
-
     output = """
 Environment
 ===========
@@ -644,6 +1003,20 @@ def run_cmd(cmd_set, cmd_timeout=3, env=None):
     return [status, pid, msg]
 
 
+# Write a function to merge two dictionaries deep
+def merge_two_dicts(source, destination):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            merge_two_dicts(value, node)
+        else:
+            destination[key] = value
+
+    return destination
+
+
 def launch_gui(config):
     """Launch the gui"""
     if config.use_token:
@@ -660,39 +1033,41 @@ def launch_gui(config):
     return status
 
 
-def user_prefs(start_response, environ, config):
-    """Returns user preferences
-    if POST method is used, save new user prefs.
-    """
-
-    errors = {"errors": [], "warnings": []}
-
+def user_preferences_global(start_response, environ, config):
+    """Returns user preferences"""
+    errors = []
     if environ["REQUEST_METHOD"] == "POST":
         try:
             request_body_size = int(environ.get("CONTENT_LENGTH", 0))
-        except (ValueError):
+        except ValueError:
             request_body_size = 0
         try:
-            sent_prefs = json.loads(environ["wsgi.input"].read(request_body_size))
-            # TODO:
-            # - check/validate input data
-            # - merge prefs before writing
+            # Get data sent by front
+            ugc = ApiJSON.user_global_conf(
+                json.loads(environ["wsgi.input"].read(request_body_size))
+            )
             try:
-                config.save_user_prefs(sent_prefs)
+                config.update_globals(ugc)
             except:
-                errors["errors"].append({"user preferences": "Can't write to file "})
+                errors.append({"user preferences": "Can't write to file "})
+                import traceback
+
+                warning("INTERNAL ERROR: %s " % sys.exc_info()[0])
+                print("-" * 60)
+                traceback.print_exc(file=sys.stdout)
+                print("-" * 60)
         except:
-            errors["errors"].append({"user preferences": "POST data are not valid"})
+            errors.append({"user preferences": "POST data are not valid"})
 
-    config.load_user_prefs()
-    if "error" in config._user_prefs:
-        data = {}
-        errors["warnings"].append(config._user_prefs["error"])
-    else:
-        data = config._user_prefs
-
+    data = ApiJSON.user_global_conf_fmt(config.user_globals())
     data["errors"] = errors
-    return jsonapi(start_response, data)
+
+    if errors:
+        status = 400
+    else:
+        status = 200
+    return jsonapi(start_response, data, status)
+
 
 def menu_list(start_response, config):
     """Sends menu list to ui
@@ -714,6 +1089,7 @@ def menu_list(start_response, config):
 
     return jsonapi(start_response, data)
 
+
 def remote_list(start_response, environ, config):
     """Sends remote hosts list
 
@@ -725,7 +1101,11 @@ def remote_list(start_response, environ, config):
     try:
         data = config.get_remotes()
     except:
-        return jsonapi(start_response, {"code": 1, "message": "Can't read remotes configuration"}, 500)
+        return jsonapi(
+            start_response,
+            {"code": 1, "message": "Can't read remotes configuration"},
+            500,
+        )
 
     # filter from api or externals data.
 
@@ -736,7 +1116,9 @@ def remote_connection(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][16:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
+        return jsonapi(
+            start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404
+        )
 
     remote_host = host["name"]
     site = host["config"]["site"]
@@ -744,47 +1126,43 @@ def remote_connection(start_response, environ, config):
     group = host["config"]["group"]
     proto = host["config"]["proto"]
 
-    # Get merged configuration for this host
+    # Create environment variables for connection script
+    env = {
+        'REMOTE_HOST': remote_host,
+        'SITE': site,
+        'DOMAIN': domain,
+        'GROUP': group,
+        'PROTOCOL': proto,
+    }
+
+    # Add optional options
+    if "alias" in host:
+        env['ALIAS'] = host["alias"]
+
+    # Get merged protocol configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
-    if "sec" in connection_configuration:
-        sec = connection_configuration["sec"]
-    else:
-        sec = ""
+    for k, v in connection_configuration.items():
+        env[f'PROTOCOL_{proto.upper()}_{k.upper()}'] = str(v)
 
     exec_status = {}
-    exec_status["cmd"] = "%s '%s' '%s' '%s' '%s' '%s' '%s'" % (
-        config.remote_connection_script,
-        site,
-        domain,
-        group,
-        remote_host,
-        proto,
-        sec,
-    )
-    status = run_cmd(
-        [
-            "%s '%s' '%s' '%s' '%s' '%s' '%s' "
-            % (
-                config.remote_connection_script,
-                site,
-                domain,
-                group,
-                remote_host,
-                proto,
-                sec,
-            )
-        ]
-    )
+    exec_status["cmd"] = config.remote_connection_script
+    exec_status["env"] = env
+
+    status = run_cmd([exec_status["cmd"]], env=env)
+
     exec_status["status"] = status[0]
     exec_status["pid"] = status[1]
     exec_status["msg"] = status[2]
     return jsonapi(start_response, exec_status)
 
+
 def remote_information(start_response, environ, config):
     host_uuid = environ["PATH_INFO"][13:]
     host = config.remotes.find_by_uuid(host_uuid)
     if host is None:
-        return jsonapi(start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404)
+        return jsonapi(
+            start_response, {"errors": {"code": 404, "message": "Host not found"}}, 404
+        )
 
     # Get merged configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
@@ -797,11 +1175,11 @@ def remote_information(start_response, environ, config):
 
     return jsonapi(start_response, host)
 
+
 # -----------------------------------------------------------------
 # HTTP: WEB APP
 # -----------------------------------------------------------------
 def application(environ, start_response):
-
     global config
 
     if config.use_token:
@@ -822,6 +1200,13 @@ def application(environ, start_response):
                 output=wsgi_to_bytes("I'm a teapot"),
                 status="418 I'm a teapot",
             )
+
+    if environ["REQUEST_METHOD"] == "OPTIONS":
+        return page(
+            start_response,
+            wsgi_to_bytes(""),
+            headers=[("Access-Control-Allow-Methods", "GET, POST")],
+        )
 
     # Static files
     static_files = [
@@ -847,10 +1232,12 @@ def application(environ, start_response):
         "/js/components/NavBar.vue.js",
         "/js/components/Toasts.vue.js",
         "/js/components/Toast.vue.js",
+        "/js/components/PreferenceInput.vue.js",
         "/js/components/RemoteAccess/Site.vue.js",
         "/js/components/RemoteAccess/Domain.vue.js",
         "/js/components/RemoteAccess/Host.vue.js",
         "/js/components/RemoteAccess/HostInformationModal.vue.js",
+        "/js/components/RemoteAccess/HostCustomModal.vue.js",
         "/js/components/RemoteAccess/HostMenu.vue.js",
     ]
 
@@ -893,8 +1280,8 @@ def application(environ, start_response):
     elif environ["PATH_INFO"][0:13] == "/remote/info/":
         return remote_information(start_response, environ, config)
 
-    elif environ["PATH_INFO"] == "/user/prefs":
-        return user_prefs(start_response, environ, config)
+    elif environ["PATH_INFO"] == "/user/preferences/global":
+        return user_preferences_global(start_response, environ, config)
 
     else:
         # TODO: passer un message d'erreur
@@ -1075,7 +1462,6 @@ def main(args, config):
 
 
 if __name__ == "__main__":
-
     # Process passed arguments.
     try:
         import argparse

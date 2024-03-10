@@ -23,7 +23,12 @@ const HostInformationModal = {
                     <li>Domain : {{ hostDetailled.config.domain }}</li>
                     <li>Group : {{ hostDetailled.config.group }}</li>
                     <li>Protocol : {{ hostDetailled.config.proto }}</li>
-                    <li>Protocol parameters : {{ hostDetailled.config['proto-config'] }}</li>
+                    <li v-if="hostDetailled.config['proto-config']">
+                        Protocol parameters :
+                        <ul>
+                            <li v-for="(v, k) in hostDetailled.config['proto-config']">{{ k }} : {{ v }}</li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
 

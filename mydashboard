@@ -579,7 +579,7 @@ class MyConfig:
         self.token = Token()
 
         # Safe mode if token is used
-        use_token = True
+        self.use_token = True
 
         # Web browser
         self.webbrowser = "/usr/bin/firefox"

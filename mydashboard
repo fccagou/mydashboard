@@ -1126,37 +1126,30 @@ def remote_connection(start_response, environ, config):
     group = host["config"]["group"]
     proto = host["config"]["proto"]
 
-    # Get merged configuration for this host
+    # Create environment variables for connection script
+    env = {
+        'REMOTE_HOST': remote_host,
+        'SITE': site,
+        'DOMAIN': domain,
+        'GROUP': group,
+        'PROTOCOL': proto,
+    }
+
+    # Add optional options
+    if "alias" in host:
+        env['ALIAS'] = host["alias"]
+
+    # Get merged protocol configuration for this host
     connection_configuration = config.remotes.get_configuration_protcol(host_uuid)
-    if "sec" in connection_configuration:
-        sec = connection_configuration["sec"]
-    else:
-        sec = ""
+    for k, v in connection_configuration.items():
+        env[f'PROTOCOL_{proto.upper()}_{k.upper()}'] = v
 
     exec_status = {}
-    exec_status["cmd"] = "%s '%s' '%s' '%s' '%s' '%s' '%s'" % (
-        config.remote_connection_script,
-        site,
-        domain,
-        group,
-        remote_host,
-        proto,
-        sec,
-    )
-    status = run_cmd(
-        [
-            "%s '%s' '%s' '%s' '%s' '%s' '%s' "
-            % (
-                config.remote_connection_script,
-                site,
-                domain,
-                group,
-                remote_host,
-                proto,
-                sec,
-            )
-        ]
-    )
+    exec_status["cmd"] = config.remote_connection_script
+    exec_status["env"] = env
+
+    status = run_cmd([exec_status["cmd"]], env=env)
+
     exec_status["status"] = status[0]
     exec_status["pid"] = status[1]
     exec_status["msg"] = status[2]

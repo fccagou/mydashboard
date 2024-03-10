@@ -1,14 +1,10 @@
 #!/bin/bash
 
-SITE="${1}"
-DOMAIN="${2}"
-GROUP="${3}"
-REMOTE_HOST="${4}"
-PROTO="${5}"
-SEC="${6}"
+# Variable SITE, DOAMAIN, GROUP, REMOTE_HOST, PROTOCOL and protocol configuration are in env
 
+proto_config_keys="$(printenv | egrep "^PROTOCOL_${PROTOCOL^^}_" | cut -d '=' -f 1 | xargs)"
 
-if [ "${PROTO}" == "ssh" ] || [ "${GROUP}" == "bleu" ]
+if [ "${PROTOCOL}" == "ssh" ] || [ "${GROUP}" == "bleu" ]
 then
     if ! timeout --preserve-status 3 bash -c "</dev/tcp/${REMOTE_HOST}/22" >/dev/null 2>&1
 	then
@@ -34,6 +30,11 @@ fi
 
 some_alea=$(( RANDOM % 3 ))
 
+for v in $proto_config_keys; do
+	proto_conf="${proto_conf}
+$v = '$(printenv $v)'"
+done
+
 cat - <<EOF_REMOTE
 
 This is a mock script for testing purpose.
@@ -43,12 +44,12 @@ This is a mock script for testing purpose.
 
 Parameters are:
 
-   1:        SITE = ${SITE}
-   2:      DOMAIN = ${DOMAIN}
-   3:       GROUP = ${GROUP}
-   4: REMOTE_HOST = ${REMOTE_HOST}
-   5:       PROTO = ${PROTO}
-   6:         SEC = ${SEC}
+   SITE        = '${SITE}'
+   DOMAIN      = '${DOMAIN}'
+   GROUP       = '${GROUP}'
+   REMOTE_HOST = '${REMOTE_HOST}'
+   PROTOCOL    = '${PROTOCOL}'
+   ${proto_conf}
 
 
 It generates a random value in (0..3).

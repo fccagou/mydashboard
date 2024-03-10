@@ -33,6 +33,7 @@ app.component('domain', DomainComponent);
 app.component('host', HostComponent);
 app.component('host-menu', HostMenuComponent);
 app.component('host-information-modal', HostInformationModal);
+app.component('host-custom-modal', HostCustomModal);
 
 const clickOutside = {
     beforeMount: (el, binding) => {

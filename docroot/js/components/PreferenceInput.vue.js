@@ -3,8 +3,8 @@ const PreferenceInputComponent = {
   emits: ['update:value'],
   template: `
     <div v-if="type === 'bool'" class="form-check form-switch user-select-none">
-      <input class="form-check-input" type="checkbox" id="switch-{{ name }}" :checked="value" @input="updateBoolean">
-      <label class="form-check-label" for="switch-{{ name }}">{{ formattedName }}</label>
+      <input class="form-check-input" type="checkbox" :id="'switch-' + name" :checked="value" @input="updateBoolean">
+      <label class="form-check-label" :for="'switch-' + name">{{ formattedName }}</label>
       </div>
     <div v-else-if="type === 'resolution'" class="mb-3">
       <label class="form-label">{{ formattedName }}</label>
@@ -15,8 +15,8 @@ const PreferenceInputComponent = {
       </div>
     </div>
     <div v-else class="form-group">
-        <label for="input-{{ name }}">{{ formattedName }}</label>
-        <input type="text" class="form-control" id="input-{{ name }}" :placeholder="this.default" v-model="value" @input="$emit('update:value', $event.target.value)">
+        <label :for="'input-' + name">{{ formattedName }}</label>
+        <input type="text" class="form-control" :id="'input-' + name" :placeholder="this.default" v-model="value" @input="$emit('update:value', $event.target.value)">
     </div>`,
   methods: {
     updateResolution() {
